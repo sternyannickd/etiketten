@@ -1,0 +1,20 @@
+[project]
+name = "etiketten"
+version = "0.1.0"
+description = "Etikettendruck (Titel, EAN-13, MHD) für Citizen-Etikettendrucker über ZPL"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+etiketten = "etiketten.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["etiketten"]
+
+[tool.setuptools.package-data]
+etiketten = ["static/*"]

@@ -1,0 +1,170 @@
+:root {
+  --bg: #f4f1ec;
+  --karte: #ffffff;
+  --text: #2a2420;
+  --leise: #7a6f66;
+  --linie: #e2dcd3;
+  --akzent: #6b3e26;
+  --akzent-hell: #f3e7df;
+  --gut: #2f7d4a;
+  --schlecht: #b3261e;
+  --warn: #9a6400;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  flex-wrap: wrap;
+}
+h1 { font-size: 1.4rem; margin: 0; }
+h2 { font-size: 1.05rem; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.nr {
+  display: inline-grid; place-items: center;
+  width: 1.6em; height: 1.6em; border-radius: 50%;
+  background: var(--akzent); color: #fff; font-size: .85rem;
+}
+
+.status {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--linie); background: var(--karte);
+  border-radius: 999px; padding: 6px 14px; font: inherit; font-size: .9rem; cursor: pointer;
+}
+.status .punkt { width: 10px; height: 10px; border-radius: 50%; background: var(--leise); }
+.status--ok .punkt { background: var(--gut); }
+.status--fehler .punkt { background: var(--schlecht); }
+.status--fehler { border-color: var(--schlecht); }
+
+.hinweis {
+  max-width: 1200px; margin: 0 auto 12px; padding: 10px 14px;
+  background: #fdecea; border: 1px solid #f3c1bc; border-radius: 8px; font-size: .9rem;
+  white-space: pre-line;
+}
+
+.raster {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "produkt druck" "datum druck";
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+.raster > .karte:nth-child(1) { grid-area: produkt; }
+.raster > .karte:nth-child(2) { grid-area: datum; }
+.raster > .karte:nth-child(3) { grid-area: druck; position: sticky; top: 16px; }
+
+.karte {
+  background: var(--karte);
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.kachel {
+  text-align: left;
+  border: 2px solid var(--linie);
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font: inherit;
+  cursor: pointer;
+  min-height: 64px;
+}
+.kachel:hover { border-color: var(--akzent); }
+.kachel[aria-checked="true"] { border-color: var(--akzent); background: var(--akzent-hell); }
+.kachel strong { display: block; font-size: 1.05rem; }
+.kachel small { color: var(--leise); font-variant-numeric: tabular-nums; }
+
+.felder { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--leise); }
+input {
+  font: inherit; color: var(--text);
+  padding: 8px 10px; border: 1px solid var(--linie); border-radius: 8px; background: #fff;
+}
+.marke {
+  display: inline-block; font-size: .75rem; padding: 0 6px; border-radius: 4px;
+  background: var(--linie); color: var(--text);
+}
+.marke--manuell { background: #fff1d6; color: var(--warn); }
+
+.link { border: 0; background: none; color: var(--akzent); text-decoration: underline; cursor: pointer; font: inherit; padding: 8px 0; }
+
+.menge-label { margin-top: 16px; }
+.menge { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+.menge input { width: 90px; text-align: center; font-size: 1.2rem; }
+.menge button {
+  font: inherit; min-width: 44px; height: 44px; border-radius: 8px;
+  border: 1px solid var(--linie); background: #fff; cursor: pointer; font-size: 1.1rem;
+}
+.menge .schnell { display: inline-flex; gap: 6px; margin-left: 8px; }
+.menge .schnell button { font-size: .9rem; color: var(--leise); }
+
+.vorschau {
+  margin: 0 0 16px;
+  background: repeating-conic-gradient(#eee 0 25%, #f8f8f8 0 50%) 0 0 / 16px 16px;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.vorschau img {
+  max-width: 100%;
+  width: 360px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .25);
+  border-radius: 4px;
+}
+.vorschau figcaption { font-size: .85rem; color: var(--leise); margin-top: 8px; }
+
+.drucken {
+  width: 100%;
+  font: inherit; font-size: 1.2rem; font-weight: 600;
+  padding: 16px; border: 0; border-radius: 10px;
+  background: var(--akzent); color: #fff; cursor: pointer;
+}
+.drucken small { display: block; font-size: .85rem; font-weight: 400; opacity: .85; }
+.drucken:disabled { opacity: .45; cursor: not-allowed; }
+.drucken.laeuft { opacity: .7; cursor: progress; }
+
+.meldung { min-height: 1.4em; margin: 10px 0 0; font-size: .95rem; }
+.meldung--ok { color: var(--gut); }
+.meldung--fehler { color: var(--schlecht); white-space: pre-line; }
+.fehler { color: var(--schlecht); white-space: pre-line; }
+
+.werkzeuge { margin-top: 16px; font-size: .9rem; }
+.werkzeuge summary { cursor: pointer; color: var(--leise); }
+.werkzeuge button {
+  display: block; margin-top: 8px; font: inherit; padding: 8px 12px;
+  border: 1px solid var(--linie); background: #fff; border-radius: 8px; cursor: pointer;
+}
+.werkzeuge pre {
+  background: #2a2420; color: #f4f1ec; padding: 10px; border-radius: 8px;
+  overflow-x: auto; font-size: .8rem;
+}
+
+@media (max-width: 800px) {
+  body { padding: 12px; }
+  .raster { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "produkt" "datum" "druck"; }
+  .raster > .karte:nth-child(3) { position: static; }
+  .kacheln { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}

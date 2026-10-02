@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Etikettendruck</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="kopf">
+    <h1>Etikettendruck</h1>
+    <button id="status" class="status status--laedt" type="button" title="Druckerstatus neu prüfen">
+      <span class="punkt"></span><span id="status-text">Prüfe Drucker …</span>
+    </button>
+  </header>
+  <p id="status-hinweis" class="hinweis" hidden></p>
+
+  <main class="raster">
+    <section class="karte">
+      <h2><span class="nr">1</span> Produkt</h2>
+      <div id="produkte" class="kacheln" role="radiogroup" aria-label="Produkt"></div>
+      <p id="produkte-fehler" class="fehler" hidden></p>
+    </section>
+
+    <section class="karte">
+      <h2><span class="nr">2</span> Datum &amp; Menge</h2>
+      <div class="felder">
+        <label><span>Abgepackt am</span>
+          <input id="abgepackt" type="date">
+        </label>
+        <label><span>MHD <span id="mhd-art" class="marke">berechnet</span></span>
+          <input id="mhd" type="date">
+        </label>
+        <button id="mhd-reset" class="link" type="button" hidden>wieder berechnen</button>
+      </div>
+      <label class="menge-label" for="menge">Anzahl Etiketten</label>
+      <div class="menge">
+        <button type="button" data-schritt="-1" aria-label="weniger">−</button>
+        <input id="menge" type="number" min="1" max="999" value="1" inputmode="numeric">
+        <button type="button" data-schritt="1" aria-label="mehr">+</button>
+        <span class="schnell">
+          <button type="button" data-menge="1">1</button>
+          <button type="button" data-menge="6">6</button>
+          <button type="button" data-menge="12">12</button>
+          <button type="button" data-menge="24">24</button>
+        </span>
+      </div>
+    </section>
+
+    <section class="karte karte--druck">
+      <h2><span class="nr">3</span> Drucken</h2>
+      <figure class="vorschau">
+        <img id="vorschau-bild" alt="Vorschau des Etiketts" hidden>
+        <figcaption id="vorschau-text">Produkt wählen für eine Vorschau</figcaption>
+      </figure>
+      <button id="drucken" class="drucken" type="button" disabled>Drucken</button>
+      <p id="meldung" class="meldung" role="status" aria-live="polite"></p>
+      <details class="werkzeuge">
+        <summary>Werkzeuge</summary>
+        <button id="testdruck" type="button">Testetikett drucken (Kalibrierung &amp; Umlaute)</button>
+        <button id="zpl-zeigen" type="button">ZPL anzeigen</button>
+        <pre id="zpl" hidden></pre>
+      </details>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
