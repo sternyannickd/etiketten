@@ -1,0 +1,79 @@
+# Konfiguration des Etikettendrucks.
+# Alle Maße in Millimetern. Relative Pfade gelten relativ zu dieser Datei.
+
+produkte = "data/produkte.csv"
+protokoll = "var/druckprotokoll.csv"   # leer ("") = kein Protokoll
+
+[server]
+host = "127.0.0.1"   # "0.0.0.0" = auch von anderen Geräten im Netz erreichbar
+port = 8077
+
+[drucker]
+name = "Citizen CL-S521"
+dpi = 203
+
+# Wie die ZPL-Daten zum Drucker kommen:
+#   "usb"  – direkt auf /dev/usb/lp*, ohne CUPS (Standard)
+#   "cups" – über eine CUPS-Warteschlange im Raw-Modus (lp -o raw)
+#   "tcp"  – an einen Netzwerkdrucker (Port 9100)
+#   "datei" – nichts drucken, ZPL nur nach var/ausgabe/ schreiben (Trockenlauf)
+transport = "usb"
+
+# usb: Gerätedatei. "auto" sucht das USB-Gerät, dessen Kennung usb_kennung enthält.
+usb_geraet = "auto"
+usb_kennung = "CITIZEN"
+
+# cups: Name der Warteschlange (lpstat -v)
+cups_warteschlange = "Citizen_CL_S521_raw"
+
+# tcp: Adresse des Netzwerkdruckers
+tcp_host = "192.168.1.50"
+tcp_port = 9100
+
+# Zeichensatz für Umlaute: "utf8" (^CI28) oder "latin1" (^CI27, Windows-1252).
+# Falls der Testdruck statt Umlauten Unsinn zeigt: den anderen probieren.
+zeichensatz = "utf8"
+
+# Optional, leer lassen = Einstellung am Drucker gilt.
+# schwaerzung: -30 … 30 (^MD), geschwindigkeit: 2 … 6 Zoll/s (^PR)
+# schwaerzung = 0
+# geschwindigkeit = 4
+
+[vorschau]
+# Vorschau über den Online-Dienst labelary.com. Optional: Drucken
+# funktioniert auch ohne, wenn der Dienst nicht erreichbar ist.
+aktiv = true
+url = "https://api.labelary.com/v1/printers/{dpmm}dpmm/labels/{breite_zoll}x{hoehe_zoll}/0/"
+timeout_s = 5
+
+[etikett]
+breite = 57
+hoehe = 32
+# Kalibrierung: verschiebt den gesamten Inhalt (positiv = nach rechts/unten).
+versatz_x = 0.0
+versatz_y = 0.0
+
+[layout.titel]
+x = 2.0
+y = 2.0
+breite = 40.0
+hoehe = 9.0
+max_zeilen = 2
+schrift_max = 5.0      # Zeichenhöhe in mm bei kurzen Namen
+schrift_min = 3.0      # kleiner wird nicht; der Name wird dann gekürzt
+
+[layout.barcode]
+x = 2.0                # linke Kante inkl. der ersten Ziffer
+y = 12.0
+modul = 3              # Breite eines Strichs in Druckpunkten (203 dpi: 3 = 0,375 mm)
+balkenhoehe = 14.0
+
+[layout.mhd]
+x = 46.5               # linke Kante der senkrechten MHD-Spalte
+y = 2.0
+laenge = 28.0          # verfügbare Länge entlang der Etikettenhöhe
+einzeilig = true        # false = "MHD:" klein und das Datum groß darunter (zwei Spalten)
+beschriftung = "MHD:"
+beschriftung_schrift = 2.6
+datum_schrift = 4.6
+datumsformat = "%d.%m.%Y"
