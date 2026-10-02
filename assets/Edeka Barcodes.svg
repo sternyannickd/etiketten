@@ -1,0 +1,1339 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="57mm"
+   height="32mm"
+   viewBox="0 0 57 32"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="Edeka Barcodes.svg"
+   inkscape:export-filename="Espresso Guatemala Barcode.pdf"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="2"
+     inkscape:cx="86.75"
+     inkscape:cy="4.25"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:4.23333px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264999;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       x="-24.551416"
+       y="52.574547"
+       id="text7"
+       transform="rotate(-90)"
+       inkscape:label="Datum"><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;stroke-width:0.265"
+         x="-24.551416"
+         y="52.574547"
+         id="tspan8">11.06.27</tspan></text>
+  </g>
+  <g
+     id="g9"
+     inkscape:label="Stern Espresso"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;stroke-width:0.264583"
+       x="5.495852"
+       y="7.2434583"
+       id="text1"
+       inkscape:label="SternEspresso"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';stroke-width:0.264583"
+         x="5.495852"
+         y="7.2434583">Stern Espresso</tspan></text>
+    <g
+       id="barcode"
+       style="fill:#000000"
+       transform="matrix(0.30181573,0,0,0.30181573,7.439541,10.872891)"
+       inkscape:label="Stern-Espresso Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="26"
+         y="0"
+         id="barcode_bar17"
+         width="2"
+         height="50" />
+      <rect
+         x="29"
+         y="0"
+         id="barcode_bar19"
+         width="2"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode_bar41"
+         width="3"
+         height="50" />
+      <rect
+         x="69"
+         y="0"
+         id="barcode_bar43"
+         width="1"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode_bar45"
+         width="2"
+         height="50" />
+      <rect
+         x="75"
+         y="0"
+         id="barcode_bar47"
+         width="2"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode_bar49"
+         width="2"
+         height="50" />
+      <rect
+         x="82"
+         y="0"
+         id="barcode_bar51"
+         width="2"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="87"
+         y="0"
+         id="barcode_bar55"
+         width="3"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode_text">2    064200     000114       </text>
+    </g>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-weight:bold;font-size:2.82222222px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#000000;stroke-width:0.264583"
+     x="-30.299473"
+     y="46.106163"
+     id="text2"
+     transform="rotate(-90)"
+     inkscape:label="abgepackt am"><tspan
+       sodipodi:role="line"
+       id="tspan2"
+       style="stroke-width:0.264583;font-size:2.82222222px"
+       x="-30.299473"
+       y="46.106163">Mindesthaltbarkeit:</tspan></text>
+  <path
+     style="fill:none;stroke:#000000;stroke-width:0.264999;stroke-dasharray:0.264999, 0.264999;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 42.529208,1.7183313 V 30.206455 h 0.09044"
+     id="path3"
+     inkscape:label="trennlinie"
+     sodipodi:insensitive="true" />
+  <g
+     id="g39"
+     inkscape:label="Espresso Guatemala"
+     style="display:none"
+     sodipodi:insensitive="true">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.58611px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;stroke-width:0.264583"
+       x="21.719501"
+       y="5.6559582"
+       id="text9"
+       inkscape:label="Espresso Guatemala"><tspan
+         sodipodi:role="line"
+         id="tspan9"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.58611px;line-height:1;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="21.719501"
+         y="5.6559582"
+         dy="0">Espresso </tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.58611px;line-height:1;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="21.719501"
+         y="10.242068"
+         id="tspan159">Guatemala</tspan></text>
+    <g
+       id="barcode5"
+       style="fill:#000000"
+       transform="matrix(0.30174433,0,0,0.27714209,7.442672,11.931225)"
+       inkscape:label="Espresso Guatemala Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode5_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode5_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode5_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode5_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode5_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode5_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode5_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode5_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="26"
+         y="0"
+         id="barcode5_bar17"
+         width="2"
+         height="50" />
+      <rect
+         x="29"
+         y="0"
+         id="barcode5_bar19"
+         width="2"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode5_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode5_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode5_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode5_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode5_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode5_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode5_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode5_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode5_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode5_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode5_bar41"
+         width="3"
+         height="50" />
+      <rect
+         x="69"
+         y="0"
+         id="barcode5_bar43"
+         width="1"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode5_bar45"
+         width="2"
+         height="50" />
+      <rect
+         x="75"
+         y="0"
+         id="barcode5_bar47"
+         width="2"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode5_bar49"
+         width="1"
+         height="50" />
+      <rect
+         x="83"
+         y="0"
+         id="barcode5_bar51"
+         width="1"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode5_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="88"
+         y="0"
+         id="barcode5_bar55"
+         width="1"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode5_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode5_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode5_text">2    064200     000138       </text>
+    </g>
+  </g>
+  <g
+     id="g69"
+     inkscape:label="Nicaragua"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:Cambria;display:inline;fill:#000000;stroke-width:0.264583"
+       x="10.25835"
+       y="7.2434583"
+       id="text39"
+       inkscape:label="Nicaragua"><tspan
+         sodipodi:role="line"
+         id="tspan39"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';stroke-width:0.264583"
+         x="10.25835"
+         y="7.2434583">Nicaragua</tspan></text>
+    <g
+       id="barcode4"
+       style="fill:#000000"
+       transform="matrix(0.30174433,0,0,0.30174433,7.442672,10.872891)"
+       inkscape:label="Nicaragua Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode4_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode4_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode4_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode4_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode4_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode4_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode4_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode4_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="26"
+         y="0"
+         id="barcode4_bar17"
+         width="2"
+         height="50" />
+      <rect
+         x="29"
+         y="0"
+         id="barcode4_bar19"
+         width="2"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode4_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode4_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode4_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode4_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode4_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode4_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode4_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode4_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode4_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode4_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode4_bar41"
+         width="3"
+         height="50" />
+      <rect
+         x="69"
+         y="0"
+         id="barcode4_bar43"
+         width="1"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode4_bar45"
+         width="2"
+         height="50" />
+      <rect
+         x="75"
+         y="0"
+         id="barcode4_bar47"
+         width="2"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode4_bar49"
+         width="1"
+         height="50" />
+      <rect
+         x="81"
+         y="0"
+         id="barcode4_bar51"
+         width="1"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode4_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="90"
+         y="0"
+         id="barcode4_bar55"
+         width="1"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode4_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode4_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode4_text">2    064200     000183       </text>
+    </g>
+  </g>
+  <g
+     id="g159"
+     inkscape:label="Kolumbien"
+     style="display:inline">
+    <g
+       id="barcode1"
+       style="fill:#000000"
+       transform="matrix(0.30181159,0,0,0.30181159,7.439737,10.873013)"
+       inkscape:label="Kolumbien Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode1_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode1_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode1_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode1_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode1_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode1_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode1_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode1_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="25"
+         y="0"
+         id="barcode1_bar17"
+         width="1"
+         height="50" />
+      <rect
+         x="28"
+         y="0"
+         id="barcode1_bar19"
+         width="3"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode1_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode1_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode1_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode1_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode1_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode1_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode1_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode1_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode1_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode1_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode1_bar41"
+         width="2"
+         height="50" />
+      <rect
+         x="67"
+         y="0"
+         id="barcode1_bar43"
+         width="2"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode1_bar45"
+         width="2"
+         height="50" />
+      <rect
+         x="75"
+         y="0"
+         id="barcode1_bar47"
+         width="2"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode1_bar49"
+         width="1"
+         height="50" />
+      <rect
+         x="83"
+         y="0"
+         id="barcode1_bar51"
+         width="1"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode1_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="87"
+         y="0"
+         id="barcode1_bar55"
+         width="3"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode1_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode1_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode1_text">2    064000     002134       </text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;stroke-width:0.264583"
+       x="8.6708517"
+       y="7.2434583"
+       id="text129"
+       inkscape:label="Kolumbien"><tspan
+         sodipodi:role="line"
+         id="tspan129"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';stroke-width:0.264583"
+         x="8.6708517"
+         y="7.2434583">Kolumbien</tspan></text>
+  </g>
+  <g
+     id="g160"
+     inkscape:label="Äthiopien"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;stroke-width:0.264583"
+       x="10.25835"
+       y="7.2434583"
+       id="text99"
+       inkscape:label="Äthiopien"><tspan
+         sodipodi:role="line"
+         id="tspan99"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';stroke-width:0.264583"
+         x="10.25835"
+         y="7.2434583">Äthiopien</tspan></text>
+    <g
+       id="barcode2"
+       style="fill:#000000"
+       transform="matrix(0.30181159,0,0,0.30181159,7.439737,10.873013)"
+       inkscape:label="Äthiopien Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode2_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode2_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode2_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode2_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode2_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode2_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode2_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode2_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="25"
+         y="0"
+         id="barcode2_bar17"
+         width="1"
+         height="50" />
+      <rect
+         x="28"
+         y="0"
+         id="barcode2_bar19"
+         width="3"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode2_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode2_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode2_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode2_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode2_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode2_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode2_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode2_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode2_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode2_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode2_bar41"
+         width="2"
+         height="50" />
+      <rect
+         x="67"
+         y="0"
+         id="barcode2_bar43"
+         width="2"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode2_bar45"
+         width="3"
+         height="50" />
+      <rect
+         x="76"
+         y="0"
+         id="barcode2_bar47"
+         width="1"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode2_bar49"
+         width="1"
+         height="50" />
+      <rect
+         x="80"
+         y="0"
+         id="barcode2_bar51"
+         width="1"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode2_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="87"
+         y="0"
+         id="barcode2_bar55"
+         width="1"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode2_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode2_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode2_text">2    064000     002066       </text>
+    </g>
+  </g>
+  <g
+     id="g161"
+     inkscape:label="Guatemala"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:Cambria;fill:#000000;stroke-width:0.264583"
+       x="9.7291842"
+       y="7.2434583"
+       id="text69"
+       inkscape:label="Guatemala"><tspan
+         sodipodi:role="line"
+         id="tspan69"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.93889px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';stroke-width:0.264583"
+         x="9.7291842"
+         y="7.2434583">Guatemala</tspan></text>
+    <g
+       id="barcode3"
+       style="display:inline;fill:#000000"
+       transform="matrix(0.30174432,0,0,0.30174432,7.4426719,10.872891)"
+       inkscape:label="Guatemala Barcode">
+      <rect
+         x="0"
+         y="0"
+         id="barcode3_bar1"
+         width="1"
+         height="54" />
+      <rect
+         x="2"
+         y="0"
+         id="barcode3_bar3"
+         width="1"
+         height="54" />
+      <rect
+         x="6"
+         y="0"
+         id="barcode3_bar5"
+         width="2"
+         height="50" />
+      <rect
+         x="9"
+         y="0"
+         id="barcode3_bar7"
+         width="1"
+         height="50" />
+      <rect
+         x="11"
+         y="0"
+         id="barcode3_bar9"
+         width="1"
+         height="50" />
+      <rect
+         x="13"
+         y="0"
+         id="barcode3_bar11"
+         width="4"
+         height="50" />
+      <rect
+         x="19"
+         y="0"
+         id="barcode3_bar13"
+         width="3"
+         height="50" />
+      <rect
+         x="23"
+         y="0"
+         id="barcode3_bar15"
+         width="1"
+         height="50" />
+      <rect
+         x="25"
+         y="0"
+         id="barcode3_bar17"
+         width="1"
+         height="50" />
+      <rect
+         x="28"
+         y="0"
+         id="barcode3_bar19"
+         width="3"
+         height="50" />
+      <rect
+         x="34"
+         y="0"
+         id="barcode3_bar21"
+         width="2"
+         height="50" />
+      <rect
+         x="37"
+         y="0"
+         id="barcode3_bar23"
+         width="1"
+         height="50" />
+      <rect
+         x="39"
+         y="0"
+         id="barcode3_bar25"
+         width="1"
+         height="50" />
+      <rect
+         x="42"
+         y="0"
+         id="barcode3_bar27"
+         width="3"
+         height="50" />
+      <rect
+         x="46"
+         y="0"
+         id="barcode3_bar29"
+         width="1"
+         height="54" />
+      <rect
+         x="48"
+         y="0"
+         id="barcode3_bar31"
+         width="1"
+         height="54" />
+      <rect
+         x="50"
+         y="0"
+         id="barcode3_bar33"
+         width="3"
+         height="50" />
+      <rect
+         x="55"
+         y="0"
+         id="barcode3_bar35"
+         width="1"
+         height="50" />
+      <rect
+         x="57"
+         y="0"
+         id="barcode3_bar37"
+         width="3"
+         height="50" />
+      <rect
+         x="62"
+         y="0"
+         id="barcode3_bar39"
+         width="1"
+         height="50" />
+      <rect
+         x="64"
+         y="0"
+         id="barcode3_bar41"
+         width="2"
+         height="50" />
+      <rect
+         x="68"
+         y="0"
+         id="barcode3_bar43"
+         width="2"
+         height="50" />
+      <rect
+         x="71"
+         y="0"
+         id="barcode3_bar45"
+         width="3"
+         height="50" />
+      <rect
+         x="75"
+         y="0"
+         id="barcode3_bar47"
+         width="1"
+         height="50" />
+      <rect
+         x="78"
+         y="0"
+         id="barcode3_bar49"
+         width="3"
+         height="50" />
+      <rect
+         x="83"
+         y="0"
+         id="barcode3_bar51"
+         width="1"
+         height="50" />
+      <rect
+         x="85"
+         y="0"
+         id="barcode3_bar53"
+         width="1"
+         height="50" />
+      <rect
+         x="88"
+         y="0"
+         id="barcode3_bar55"
+         width="1"
+         height="50" />
+      <rect
+         x="92"
+         y="0"
+         id="barcode3_bar57"
+         width="1"
+         height="54" />
+      <rect
+         x="94"
+         y="0"
+         id="barcode3_bar59"
+         width="1"
+         height="54" />
+      <text
+         x="47"
+         y="59"
+         style="font-size:9px;text-align:center;text-anchor:middle"
+         xml:space="preserve"
+         id="barcode3_text">2    064000     001908       </text>
+    </g>
+  </g>
+</svg>
