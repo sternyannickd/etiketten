@@ -30,8 +30,10 @@ muss `lp` enthalten.
 
 ## 3. ⚠️ Druckersprache (Emulation)
 
-Der Drucker meldet `ACTIVE COMMAND:DMI`. Das ist die **Datamax-Emulation**, nicht
-ZPL. Citizen-Etikettendrucker können je nach Modell und Firmware zwischen Datamax
+Am 02.10.2026 meldete der Drucker `ACTIVE COMMAND:DMI`, also die
+**Datamax-Emulation**, nicht ZPL. Seit dem 06.10.2026 meldet er sich als
+`CL-S521Z` mit `ACTIVE COMMAND:Z2` (Zebra, ZPL II) und druckt einwandfrei.
+`check` warnt nur noch, wenn wieder Datamax aktiv ist. Citizen-Etikettendrucker können je nach Modell und Firmware zwischen Datamax
 und Zebra (ZPL) umschalten, manche erkennen die Sprache auch automatisch.
 
 **Test:** `python3 -m etiketten testdruck`

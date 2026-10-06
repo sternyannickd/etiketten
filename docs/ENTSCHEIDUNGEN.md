@@ -39,20 +39,35 @@ Zusätzlich entschieden (ohne Rückfrage, leicht änderbar):
 
 ## Offene Punkte
 
-1. **⚠️ Emulation des Druckers.** Der CL-S521 meldet `ACTIVE COMMAND:DMI`
-   (Datamax). Ob er ZPL ohne Umstellen versteht, zeigt erst der Testdruck. Siehe
-   [`DRUCKER.md`](DRUCKER.md) §3.
-2. **Umlaute** auf dem echten Drucker prüfen (`Äthiopien`).
-3. **Barcode scannen** mit dem Supermarkt-Scanner bzw. einer Handy-App.
-4. **Haltbarkeit pro Produkt:** In der CSV stehen überall 12 Monate als Platzhalter.
-5. **Herkunft der EANs:** Alle Nummern beginnen mit **2**. Dieser Bereich ist für
+Stand nach dem ersten Test am echten Drucker (06.10.2026).
+
+**Erledigt:**
+
+- ~~Emulation~~: Der CL-S521 meldet inzwischen `ACTIVE COMMAND:Z2` (Zebra, ZPL II)
+  und druckt ZPL einwandfrei. Testetikett, Kolumbien-Etikett und 3 × Stern Espresso
+  über die Weboberfläche sind korrekt herausgekommen.
+- ~~Umlaute~~: „Größe Äthiopien Café“ auf dem Testetikett korrekt (`zeichensatz = "utf8"`).
+- ~~Druckrechte~~: Benutzer ist in der Gruppe `lp`, direkter USB-Druck funktioniert.
+
+**Noch offen:**
+
+1. **Barcode scannen** mit dem Kassenscanner des Supermarkts und mit einer Handy-App.
+   Der wichtigste offene Test.
+2. **Haltbarkeit pro Produkt:** In der CSV stehen überall 12 Monate als Platzhalter.
+3. **Herkunft der EANs:** Alle Nummern beginnen mit **2**. Dieser Bereich ist für
    händler- bzw. firmeninterne Nummern reserviert. Die Nummern gelten also
    vermutlich **nur bei diesem Supermarkt** (Edeka). Für weitere Händler braucht ihr
    eigene GTINs von GS1 Germany. Auffällig ist außerdem, dass es zwei Nummernkreise gibt
    (`2064200…` und `2064000…`). Möglicherweise steht das für zwei Größen oder Sortimente.
    Beim Supermarkt nachfragen.
-6. **Thermodirekt-Material** verblasst unter Umständen vor Ablauf von 12 Monaten MHD.
+4. **Thermodirekt-Material** verblasst unter Umständen vor Ablauf von 12 Monaten MHD.
    Ein Etikett ein paar Wochen ans Fenster kleben und beobachten.
+5. *(Optional)* **Versatz:** Der Rahmen des Testetiketts sitzt links fast am Rand,
+   rechts ca. 5 mm entfernt. Produktetiketten sehen trotzdem gut aus. Wer es mittig
+   will: `versatz_x = 2` unter `[etikett]` in `config.toml`.
+6. *(Optional)* **Aussehen wie das alte Muster:** zweispaltiges MHD
+   („Mindesthaltbarkeit:“ + Datum, `einzeilig = false`) und gepunktete Trennlinie.
+   Das aktuelle einzeilige `MHD: TT.MM.JJJJ` wurde beim Test für gut befunden.
 
 ## Für künftige Versionen / das Etikettenkonzept
 

@@ -52,6 +52,13 @@ class UsbTest(unittest.TestCase):
         t = drucker.UsbTransport("/gibt/es/nicht/lp9")
         self.assertFalse(t.pruefen().ok)
 
+    def test_druckersprache_aus_kennung(self):
+        zebra = "MANUFACTURER:CITIZEN;COMMAND SET:Z2;MODEL:CL-S521Z;ACTIVE COMMAND:Z2;"
+        datamax = "MANUFACTURER:CITIZEN;COMMAND SET:DMI,DM4,DPP;MODEL:CL-S521;ACTIVE COMMAND:DMI;"
+        self.assertIs(drucker.spricht_zpl(zebra), True)
+        self.assertIs(drucker.spricht_zpl(datamax), False)
+        self.assertIsNone(drucker.spricht_zpl("MFG:SII;MDL:SLP620;"))
+
 
 if __name__ == "__main__":
     unittest.main()

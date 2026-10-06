@@ -77,8 +77,7 @@ def cmd_check(dienst: Druckdienst, args) -> int:
     gefunden = drucker.usb_geraete()
     for pfad, kennung in gefunden:
         print(f"      USB: {pfad}  {kennung or '(keine Kennung)'}")
-        if "CITIZEN" in kennung.upper() and "ACTIVE COMMAND:" in kennung.upper() \
-                and "ZPL" not in kennung.upper().split("ACTIVE COMMAND:")[1]:
+        if "CITIZEN" in kennung.upper() and drucker.spricht_zpl(kennung) is False:
             print("      ⚠ Der Citizen meldet als aktive Druckersprache nicht ZPL. Falls der "
                   "Testdruck nur Zeichensalat oder nichts liefert: Emulation am Drucker auf "
                   "'Zebra' oder 'Auto' stellen (siehe docs/DRUCKER.md).")

@@ -1,5 +1,13 @@
 # Änderungen
 
+## Unveröffentlicht – 2026-10-06
+
+- Erster Test am echten CL-S521: Testetikett, Produktetikett und Druck über die
+  Weboberfläche funktionieren.
+- `check` erkennt die Zebra-Emulation `Z2` des Citizen und warnt nicht mehr
+  fälschlich „nicht ZPL“.
+- Offene Punkte in `docs/ENTSCHEIDUNGEN.md` auf den aktuellen Stand gebracht.
+
 ## 0.1.0 – 2026-10-02
 
 Erste Version des Minimal-Etiketts (Titel, EAN-13, MHD).

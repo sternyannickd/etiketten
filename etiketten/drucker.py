@@ -52,6 +52,19 @@ def usb_geraete() -> list[tuple[str, str]]:
     return ergebnis
 
 
+def spricht_zpl(kennung: str) -> bool | None:
+    """Ob die gemeldete aktive Druckersprache ZPL ist; None, wenn die Kennung nichts dazu sagt.
+
+    Citizen meldet die Zebra-Emulation als "Z2" (ZPL II), Datamax als "DMI"/"DM4".
+    """
+    for feld in kennung.upper().split(";"):
+        name, _, wert = feld.partition(":")
+        if name.strip() == "ACTIVE COMMAND":
+            wert = wert.strip()
+            return "ZPL" in wert or wert.startswith("Z")
+    return None
+
+
 class UsbTransport:
     """Schreibt direkt auf die Gerätedatei des Druckers – kein CUPS, kein Treiber."""
 

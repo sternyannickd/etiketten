@@ -41,10 +41,10 @@ python3 -m etiketten testdruck
 Optional legt `scripts/desktop-verknuepfung.sh` einen Eintrag „Etikettendruck“
 im Startmenü an.
 
-> **Wichtig vor dem ersten Druck:** Der angeschlossene CL-S521 meldet als aktive
-> Druckersprache **Datamax (DMI)**, nicht ZPL. Kommt beim Testdruck nichts
-> oder nur Zeichensalat heraus, muss die Emulation am Drucker auf Zebra/Auto
-> gestellt werden. Siehe [`docs/DRUCKER.md`](docs/DRUCKER.md).
+> **Stand 06.10.2026:** Am echten CL-S521 getestet, Druck über USB und
+> Weboberfläche funktioniert. **Offene Punkte** (u. a. Barcode am Kassenscanner
+> prüfen, Haltbarkeiten in der CSV eintragen) stehen in
+> [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md#offene-punkte).
 
 ## Bedienung
 
