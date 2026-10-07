@@ -1,6 +1,8 @@
 # Änderungen
 
-## Unveröffentlicht – 2026-10-06
+## 0.2.0 – 2026-10-07
+
+Erste am echten Drucker getestete Version, im Betrieb einsetzbar.
 
 - Erster Test am echten CL-S521: Testetikett, Produktetikett und Druck über die
   Weboberfläche funktionieren.
