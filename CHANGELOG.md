@@ -1,5 +1,13 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- Oberfläche ist jetzt ein Web Component `<etiketten-app>` und lässt sich in andere
+  Seiten einbinden (Vorbereitung für das Portal TOSTO). Attribute `api`, `produkt`,
+  `titel`. Aussehen über CSS-Variablen (`--farbe-akzent`, `--schrift`, `--radius` …).
+- Beispielseite `static/beispiel-einbindung.html` mit fremdem Design.
+- Server liefert `.js`/`.css` mit festem MIME-Typ aus (unter Windows nötig für ES-Module).
+
 ## 0.2.0 – 2026-10-07
 
 Erste am echten Drucker getestete Version, im Betrieb einsetzbar.

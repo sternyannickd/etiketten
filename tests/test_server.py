@@ -42,6 +42,14 @@ class ServerTest(unittest.TestCase):
         self.assertIn("text/html", typ)
         self.assertIn(b"Etikettendruck", inhalt)
 
+    def test_component_als_modul(self):
+        status, typ, inhalt = self.anfrage("/static/etiketten-app.js")
+        self.assertEqual(status, 200)
+        self.assertTrue(typ.startswith("text/javascript"))
+        self.assertIn(b'customElements.define("etiketten-app"', inhalt)
+        _, typ, _ = self.anfrage("/static/etiketten-app.css")
+        self.assertTrue(typ.startswith("text/css"))
+
     def test_kein_zugriff_ausserhalb_static(self):
         status, _, _ = self.anfrage("/static/../server.py")
         self.assertEqual(status, 404)

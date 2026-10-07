@@ -114,7 +114,8 @@ etiketten/
   produkte.py   CSV lesen, EAN prüfen
   mhd.py        Datumsrechnung
   config.py     config.toml laden
-  static/       Oberfläche (HTML/CSS/JS, ohne Build-Schritt)
+  static/       Oberfläche ohne Build-Schritt: Web Component <etiketten-app>
+                (etiketten-app.js/.css), index.html bindet es ein
 data/produkte.csv
 config.toml
 docs/           Architektur, Drucker-Einrichtung, Entscheidungen

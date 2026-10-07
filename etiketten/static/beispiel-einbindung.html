@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Einbindung – Beispiel</title>
+  <!--
+    Zeigt, wie eine fremde Website <etiketten-app> einbindet und mit eigenen
+    Farben, eigener Schrift und eigener Rundung versieht. Aufruf bei laufendem
+    Server: http://localhost:8077/static/beispiel-einbindung.html
+  -->
+  <style>
+    :root {
+      --farbe-flaeche: #1f2a30;
+      --farbe-text: #e8eef0;
+      --farbe-text-leise: #9db0b8;
+      --farbe-linie: #34444c;
+      --farbe-akzent: #e0a526;
+      --farbe-akzent-text: #1a1a1a;
+      --farbe-akzent-hell: #3b3420;
+      --farbe-gut: #6fcf8f;
+      --farbe-schlecht: #ff7b72;
+      --schrift: Georgia, "Times New Roman", serif;
+      --radius: 2px;
+    }
+    body { margin: 0; background: #142026; color: #e8eef0; font-family: Georgia, serif; }
+    .seite { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+    nav { background: #0d161a; padding: 24px 16px; }
+    nav a { display: block; color: #9db0b8; padding: 6px 0; text-decoration: none; }
+    nav a[aria-current] { color: #e0a526; }
+    main { padding: 24px; }
+    @media (max-width: 700px) { .seite { grid-template-columns: 1fr; } nav { display: none; } main { padding: 16px; } }
+  </style>
+  <script type="module" src="etiketten-app.js"></script>
+</head>
+<body>
+  <div class="seite">
+    <nav>
+      <strong>Beispiel-Website</strong>
+      <a href="#" aria-current="page">Etiketten</a>
+      <a href="#">Cupping</a>
+    </nav>
+    <main>
+      <h1>Etiketten</h1>
+      <etiketten-app api="/api" titel=""></etiketten-app>
+    </main>
+  </div>
+</body>
+</html>

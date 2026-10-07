@@ -25,7 +25,7 @@ ZPL-Text, der sowohl in die Vorschau als auch zum Drucker geht. Der Druckweg
 | `dienst.py` | `Druckdienst`: der Ablauf, also Produkt suchen, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau | alle oben |
 | `server.py` | HTTP: Oberfläche und JSON-API | dienst |
 | `cli.py` | Kommandozeile | dienst, server |
-| `static/` | Browser-Oberfläche ohne Build-Schritt | API |
+| `static/` | Web Component `<etiketten-app>` ohne Build-Schritt, `index.html` bindet es ein | API |
 
 Oberfläche, Kommandozeile und ein späteres Enterprise-System sind gleichwertige
 **Aufrufer des `Druckdienst`**. Keine Drucklogik steckt in der Oberfläche.
@@ -68,6 +68,33 @@ Beispiel:
 curl -X POST localhost:8077/api/drucken -H 'Content-Type: application/json' \
      -d '{"produkt":"kolumbien","menge":6}'
 ```
+
+## Einbinden in andere Seiten
+
+Die Oberfläche ist ein Web Component. Jede Seite kann sie einbinden:
+
+```html
+<script type="module" src="https://<server>/static/etiketten-app.js"></script>
+<etiketten-app api="https://<server>/api"></etiketten-app>
+```
+
+| Attribut | Bedeutung |
+|----------|-----------|
+| `api` | Basisadresse der HTTP-API (Standard `/api`) |
+| `produkt` | Produkt-ID, die beim Start gewählt ist |
+| `titel` | Überschrift, Standard „Etikettendruck“. `titel=""` blendet sie aus |
+
+**Aussehen:** Das Component kapselt seine Stile (Shadow DOM), übernimmt aber
+CSS-Variablen der Seite: `--farbe-flaeche`, `--farbe-text`, `--farbe-text-leise`,
+`--farbe-linie`, `--farbe-akzent`, `--farbe-akzent-text`, `--farbe-akzent-hell`,
+`--farbe-gut`, `--farbe-schlecht`, `--farbe-warn`, `--schrift`, `--radius`.
+Nicht gesetzte Variablen fallen auf das bisherige Rösterei-Design zurück. Das
+Layout richtet sich nach der Breite des Components (Container Query), nicht nach
+dem Fenster. Es funktioniert also auch in einer schmalen Spalte.
+`static/beispiel-einbindung.html` zeigt eine Einbindung mit fremdem Design.
+
+Liegt die Seite auf einem anderen Server als die API, braucht die API CORS-Header
+und eine Anmeldung. Das kommt mit der Einbindung in das Portal (TOSTO).
 
 ## Erweiterungen
 

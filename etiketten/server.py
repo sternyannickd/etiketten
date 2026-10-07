@@ -27,6 +27,13 @@ from .produkte import ProduktFehler
 
 STATIC_DIR = Path(__file__).parent / "static"
 MAX_BODY = 64 * 1024
+# Fest statt mimetypes: Unter Windows kann die Registry .js falsch zuordnen,
+# und ES-Module lädt der Browser nur mit JavaScript-Typ.
+TYPEN = {
+    ".html": "text/html; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+}
 
 
 def _datum(wert, feld: str) -> date | None:
@@ -144,9 +151,7 @@ def handler_fuer(dienst: Druckdienst):
             datei = (STATIC_DIR / name).resolve()
             if STATIC_DIR.resolve() not in datei.parents or not datei.is_file():
                 return self._fehler(404, "Nicht gefunden")
-            typ = mimetypes.guess_type(datei.name)[0] or "application/octet-stream"
-            if typ.startswith("text/") or typ == "application/javascript":
-                typ += "; charset=utf-8"
+            typ = TYPEN.get(datei.suffix) or mimetypes.guess_type(datei.name)[0] or "application/octet-stream"
             return self._senden(HTTPStatus.OK, datei.read_bytes(), typ)
 
     return Handler
