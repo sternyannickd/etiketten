@@ -22,10 +22,15 @@ Grundlage: [`fragen/01-druckprogramm.md`](../fragen/01-druckprogramm.md)
 | C4 | Schrift | Druckerschrift `^A0`, keine eigenen Schriften. |
 | D2 | Vorschau | labelary.com, optional. Fällt sie aus, wird trotzdem gedruckt. |
 | D3 | Protokoll | CSV in `var/druckprotokoll.csv`. Fehler beim Protokollieren verhindern nie den Druck. |
-| D4 | Daten | `data/produkte.csv`. |
+| D4 | Daten | ~~`data/produkte.csv`~~, seit 0.3 `data/produkte.json` (siehe F3). |
 | D5 | Drucker | einer. |
 | E1 | Technik | Python ≥ 3.11, nur Standardbibliothek, Oberfläche ohne Build-Schritt. |
 | E2 | Vorgehen | Alles auf einmal gebaut, Test direkt am Drucker. |
+| F1 | Website | Die App soll auf der Website **TOSTO** (Plesk-Subdomain, PHP, Login) laufen und später auch auf der Website des Chefs. Dafür ist die Oberfläche ein Web Component mit API-Adresse als Attribut und Design über CSS-Variablen (08.10.2026). |
+| F2 | Daten | Die Daten liegen künftig auf dem Server (Plesk, JSON-Dateien außerhalb von `httpdocs`). Der Rechner am Drucker bekommt Name und GTIN mit jedem Auftrag. |
+| F3 | Produkte | Kaffee (Name, Haltbarkeit **pro Kaffee**) mit beliebig vielen **frei benennbaren Versionen** (Bezeichnung, GTIN, Layout). Pflege im Browser. Archivieren statt Löschen. Jede GTIN nur einmal. |
+| F4 | Notbetrieb | Die lokale Python-Oberfläche bleibt erhalten, falls Internet oder Website ausfallen, und wird mit denselben Änderungen weiterentwickelt. Beide Server erfüllen dieselbe API ([API.md](API.md)). |
+| F5 | Drucken über die Website | Druckwarteschlange auf dem Server, am Drucker ein Agent, der Aufträge per ausgehendem HTTPS abholt, das ZPL selbst erzeugt und Lebenszeichen + Druckerstatus für eine Statusanzeige meldet. Noch nicht gebaut. |
 
 Zusätzlich entschieden (ohne Rückfrage, leicht änderbar):
 
@@ -53,7 +58,7 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
 
 1. **Barcode scannen** mit dem Kassenscanner des Supermarkts und mit einer Handy-App.
    Der wichtigste offene Test.
-2. **Haltbarkeit pro Produkt:** In der CSV stehen überall 12 Monate als Platzhalter.
+2. **Haltbarkeit pro Kaffee:** Überall stehen 12 Monate als Platzhalter (im Reiter Produkte ändern).
 3. **Herkunft der EANs:** Alle Nummern beginnen mit **2**. Dieser Bereich ist für
    händler- bzw. firmeninterne Nummern reserviert. Die Nummern gelten also
    vermutlich **nur bei diesem Supermarkt** (Edeka). Für weitere Händler braucht ihr
@@ -68,6 +73,14 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
 6. *(Optional)* **Aussehen wie das alte Muster:** zweispaltiges MHD
    („Mindesthaltbarkeit:“ + Datum, `einzeilig = false`) und gepunktete Trennlinie.
    Das aktuelle einzeilige `MHD: TT.MM.JJJJ` wurde beim Test für gut befunden.
+
+**Offen für TOSTO:**
+
+7. **Wer baut die Server-Seite (PHP)?** Diese App (dann gehört der PHP-Code in dieses
+   Repo) oder das Portal TOSTO. Wird im TOSTO-Projekt geklärt.
+8. **Notbetrieb abgleichen:** Wie die lokale Produktliste vom Server aktualisiert wird
+   (z. B. beim Start holen, dann `produkte_bearbeiten = false`).
+9. **App-Name** fehlt noch.
 
 ## Für künftige Versionen / das Etikettenkonzept
 

@@ -12,7 +12,8 @@ PROJEKT_DIR = Path(__file__).resolve().parent.parent
 STANDARD_PFAD = PROJEKT_DIR / "config.toml"
 
 STANDARD: dict = {
-    "produkte": "data/produkte.csv",
+    "produkte": "data/produkte.json",
+    "produkte_bearbeiten": True,
     "protokoll": "var/druckprotokoll.csv",
     "server": {"host": "127.0.0.1", "port": 8077},
     "drucker": {

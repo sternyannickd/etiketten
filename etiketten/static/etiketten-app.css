@@ -9,12 +9,13 @@
      --farbe-linie        #e2dcd3   Rahmen
      --farbe-akzent       #6b3e26   Druckknopf, Auswahl, Nummern
      --farbe-akzent-text  #ffffff   Schrift auf Akzentfarbe
-     --farbe-akzent-hell  #f3e7df   Hintergrund gewähltes Produkt
+     --farbe-akzent-hell  #f3e7df   Hintergrund gewählter Kaffee
      --farbe-gut          #2f7d4a
      --farbe-schlecht     #b3261e
      --farbe-warn         #9a6400
      --schrift            system-ui, …
      --radius             8px       Grundrundung, Karten sind etwas runder
+     --farbschema         light     „dark“ bei dunklem Design (Datumsfelder, Auswahllisten)
 
    Den Seitenhintergrund setzt die einbindende Seite selbst. */
 
@@ -32,6 +33,7 @@
   --r: var(--radius, 8px);
 
   display: block;
+  color-scheme: var(--farbschema, light);
   container-type: inline-size;  /* Layout richtet sich nach der eigenen Breite, nicht nach dem Fenster */
   color: var(--text);
   font: 16px/1.4 var(--schrift, system-ui, -apple-system, "Segoe UI", sans-serif);
@@ -184,8 +186,91 @@ input {
   overflow-x: auto; font-size: .8rem;
 }
 
+/* --- Reiter Drucken / Produkte --- */
+
+.reiter {
+  display: inline-flex; padding: 3px; gap: 2px;
+  border: 1px solid var(--linie); border-radius: 999px; background: var(--flaeche);
+}
+.reiter button {
+  font: inherit; font-size: .9rem; border: 0; border-radius: 999px; padding: 5px 14px;
+  background: none; color: var(--leise); cursor: pointer;
+}
+.reiter button[aria-pressed="true"] { background: var(--akzent); color: var(--akzent-text); }
+
+/* --- Versionswahl beim Drucken --- */
+
+.versionen-wahl { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linie); }
+.unterzeile { display: block; font-size: .9rem; color: var(--leise); margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; text-align: left; cursor: pointer; padding: 8px 12px;
+  border: 2px solid var(--linie); border-radius: var(--r); background: var(--flaeche); color: var(--text);
+}
+.chip:hover { border-color: var(--akzent); }
+.chip[aria-checked="true"] { border-color: var(--akzent); background: var(--akzent-hell); }
+.chip strong { display: block; }
+.chip small { color: var(--leise); font-variant-numeric: tabular-nums; }
+
+/* --- Produkte verwalten --- */
+
+.verwaltung {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+.liste-kopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.liste-kopf h2 { margin: 0; }
+.knopf {
+  font: inherit; font-size: .95rem; padding: 8px 14px; cursor: pointer;
+  border: 1px solid var(--linie); border-radius: var(--r); background: var(--flaeche); color: var(--text);
+}
+.knopf--haupt { background: var(--akzent); border-color: var(--akzent); color: var(--akzent-text); font-weight: 600; }
+.haken { flex-direction: row; align-items: center; gap: 8px; margin: 8px 0; color: var(--text); }
+.haken input { width: auto; }
+.leise { color: var(--leise); margin: 0; }
+
+.kaffee-liste { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.kaffee-liste button {
+  width: 100%; text-align: left; font: inherit; cursor: pointer; padding: 10px 12px;
+  border: 2px solid var(--linie); border-radius: var(--r); background: var(--flaeche); color: var(--text);
+}
+.kaffee-liste button:hover { border-color: var(--akzent); }
+.kaffee-liste button[aria-current="true"] { border-color: var(--akzent); background: var(--akzent-hell); }
+.kaffee-liste small { display: block; color: var(--leise); }
+.kaffee-liste .marke { margin-left: 6px; }
+
+label.breit { flex: 1 1 260px; }
+label small { color: var(--leise); font-size: .8rem; }
+h3 { font-size: 1rem; margin: 18px 0 8px; }
+
+.versionen-liste { display: grid; gap: 10px; }
+.version-zeile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto auto;
+  gap: 10px; align-items: start;
+  padding: 10px; border: 1px solid var(--linie); border-radius: var(--r);
+}
+.version-zeile .haken, .version-zeile .link { margin: 0; align-self: center; }
+.version-zeile input { width: 100%; }
+.v-gtin { font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.v-pruefung { min-height: 1.2em; }
+.v-pruefung.gut { color: var(--gut); }
+.v-pruefung.schlecht { color: var(--schlecht); }
+select {
+  font: inherit; color: var(--text); padding: 8px 10px;
+  border: 1px solid var(--linie); border-radius: var(--r); background: var(--flaeche);
+}
+#formular .felder { align-items: start; }
+.aktionen { display: flex; gap: 8px; margin-top: 18px; }
+
 @container (max-width: 800px) {
   .raster { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "produkt" "datum" "druck"; }
   .raster > .karte:nth-child(3) { position: static; }
   .kacheln { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .verwaltung { grid-template-columns: 1fr; }
+  .version-zeile { grid-template-columns: 1fr 1fr; }
 }

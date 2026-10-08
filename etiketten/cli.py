@@ -31,18 +31,22 @@ def cmd_start(dienst: Druckdienst, args) -> int:
 
 
 def cmd_produkte(dienst: Druckdienst, args) -> int:
-    for p in dienst.produkte():
-        print(f"{p.id:<22} {p.gtin}  {p.mhd_monate:>2} Monate  {p.anzeigename}")
+    for k in dienst.kaffees(alle=args.alle):
+        archiv = "  (archiviert)" if k.archiviert else ""
+        print(f"{k.id:<22} {k.mhd_monate:>2} Monate  {k.anzeigename}{archiv}")
+        for v in (k.versionen if args.alle else k.aktive_versionen):
+            archiv = "  (archiviert)" if v.archiviert else ""
+            print(f"    {v.id:<18} {v.gtin}  {v.bezeichnung}{archiv}")
     return 0
 
 
 def cmd_zpl(dienst: Druckdienst, args) -> int:
-    sys.stdout.write(dienst.etikett(args.produkt, args.mhd, args.menge))
+    sys.stdout.write(dienst.etikett(args.kaffee, args.version, args.mhd, args.menge))
     return 0
 
 
 def cmd_drucken(dienst: Druckdienst, args) -> int:
-    print(dienst.drucken(args.produkt, args.mhd, args.menge))
+    print(dienst.drucken(args.kaffee, args.version, args.mhd, args.menge))
     return 0
 
 
@@ -67,8 +71,9 @@ def cmd_check(dienst: Druckdienst, args) -> int:
     zeile(True, f"geladen aus {k.basis_dir}")
     print("Produkte")
     try:
-        liste = dienst.produkte()
-        zeile(True, f"{len(liste)} Produkte, alle EANs gültig ({k.produkte_pfad})")
+        liste = dienst.kaffees(alle=True)
+        anzahl = sum(len(kf.versionen) for kf in liste)
+        zeile(True, f"{len(liste)} Kaffees mit {anzahl} Versionen, alle EANs gültig ({k.produkte_pfad})")
     except ProduktFehler as e:
         zeile(False, str(e).replace("\n", "\n      "))
     print(f"Drucker (Druckweg: {k['drucker']['transport']})")
@@ -107,14 +112,17 @@ def main(argv: list[str] | None = None) -> int:
                    help="Browser nicht automatisch öffnen")
     p.set_defaults(func=cmd_start)
 
-    sub.add_parser("produkte", help="Produktliste anzeigen").set_defaults(func=cmd_produkte)
+    p = sub.add_parser("produkte", help="Kaffees und Versionen anzeigen")
+    p.add_argument("--alle", action="store_true", help="auch archivierte zeigen")
+    p.set_defaults(func=cmd_produkte)
     sub.add_parser("check", help="Konfiguration, Produkte und Drucker prüfen").set_defaults(func=cmd_check)
     sub.add_parser("testdruck", help="Kalibrier-/Testetikett drucken").set_defaults(func=cmd_testdruck)
 
     for name, func, hilfe in (("zpl", cmd_zpl, "ZPL ausgeben, ohne zu drucken"),
                               ("drucken", cmd_drucken, "Etiketten drucken")):
         p = sub.add_parser(name, help=hilfe)
-        p.add_argument("produkt", help="Produkt-ID (siehe 'produkte')")
+        p.add_argument("kaffee", help="Kaffee-ID (siehe 'produkte')")
+        p.add_argument("--version", help="Versions-ID, nötig wenn der Kaffee mehrere hat")
         p.add_argument("--mhd", type=_datum, help="MHD, z. B. 02.10.2027 (Standard: berechnet)")
         p.add_argument("--menge", type=int, default=1)
         p.set_defaults(func=func)

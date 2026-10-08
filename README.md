@@ -13,7 +13,9 @@ und [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md).
 
 - **Nur Python-Standardbibliothek.** Python ≥ 3.11 genügt, nichts muss per `pip`
   installiert werden.
-- **Bedienung im Browser** in drei Schritten: Produkt wählen → Menge → Drucken.
+- **Bedienung im Browser** in drei Schritten: Kaffee (und Version) wählen → Menge → Drucken.
+- **Produkte im Browser pflegen:** Kaffees anlegen, Versionen mit eigener GTIN
+  (z. B. Edeka und Rewe), archivieren.
 - **MHD** wird aus Abpackdatum und Haltbarkeit des Produkts berechnet und lässt
   sich überschreiben.
 - **Vorschau** über labelary.com ist optional. Fehlt das Internet, wird trotzdem
@@ -43,40 +45,44 @@ im Startmenü an.
 
 > **Stand 06.10.2026:** Am echten CL-S521 getestet, Druck über USB und
 > Weboberfläche funktioniert. **Offene Punkte** (u. a. Barcode am Kassenscanner
-> prüfen, Haltbarkeiten in der CSV eintragen) stehen in
+> prüfen, Haltbarkeiten eintragen) stehen in
 > [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md#offene-punkte).
 
 ## Bedienung
 
-1. **Produkt** antippen.
+1. **Kaffee** antippen. Hat er mehrere Versionen (z. B. Edeka und Rewe), darunter
+   die **Version** wählen.
 2. **Abgepackt am** ist heute. Das **MHD** wird daraus berechnet
-   (Haltbarkeit pro Produkt in der CSV). Ein MHD von Hand ändern ist möglich, dann
+   (Haltbarkeit des Kaffees). Ein MHD von Hand ändern ist möglich, dann
    steht dort „manuell“. „wieder berechnen“ schaltet zurück.
 3. **Anzahl** wählen und **Drucken** drücken. Ab 50 Etiketten wird nachgefragt.
 
 Unter **Werkzeuge** gibt es das Testetikett und den erzeugten ZPL-Text.
-Ein Direktlink auf ein Produkt geht so: `http://localhost:8077/?produkt=kolumbien`.
+Ein Direktlink geht so: `http://localhost:8077/?kaffee=kolumbien&version=edeka`.
 
 ## Produkte pflegen
 
-Die Produkte stehen in [`data/produkte.csv`](data/produkte.csv):
+Im Reiter **Produkte** oben in der Oberfläche:
 
-```csv
-id,name,gtin,mhd_monate
-kolumbien,Kolumbien,2064000002134,12
-espresso-guatemala,Espresso|Guatemala,2064200000138,12
-```
+- **+ Neuer Kaffee:** Name, Haltbarkeit in Monaten und mindestens eine Version.
+- **Version:** eine Bezeichnung (frei, z. B. „Edeka“, „Rewe 1 kg“) und die GTIN
+  (EAN-13). Die Prüfziffer wird schon beim Tippen geprüft. Bei 12 Ziffern zeigt
+  das Feld die passende 13. an. Jede GTIN darf nur einmal vorkommen.
+- **Layout** ist zurzeit immer „Standard“. Später lassen sich darüber andere
+  Etikett-Designs pro Version wählen.
+- **Name:** `|` erzwingt einen Zeilenumbruch auf dem Etikett (`Espresso|Guatemala`),
+  sonst bricht das Programm selbst um (max. 2 Zeilen, die Schrift wird bei Bedarf kleiner).
+- **Löschen gibt es nicht**, nur **archivieren** (Kaffee oder einzelne Version). Archiviertes
+  wird nicht mehr zum Drucken angeboten, bleibt aber im Druckprotokoll lesbar.
 
-| Spalte       | Bedeutung |
-|--------------|-----------|
-| `id`         | Kurzname ohne Leerzeichen, eindeutig (für Links und Kommandozeile) |
-| `name`       | Text auf dem Etikett. `|` erzwingt einen Zeilenumbruch, sonst bricht das Programm selbst um (max. 2 Zeilen, die Schrift wird bei Bedarf kleiner) |
-| `gtin`       | EAN-13 mit Prüfziffer. Die wird geprüft, Tippfehler fallen sofort auf |
-| `mhd_monate` | Haltbarkeit ab Abpackdatum in Monaten |
+Gespeichert wird in [`data/produkte.json`](data/produkte.json). Die Datei lässt
+sich auch von Hand bearbeiten (Aufbau in [`docs/API.md`](docs/API.md#datenmodell)),
+Änderungen gelten ohne Neustart. `python3 -m etiketten check` prüft sie.
+Die sechs Kaffees und EANs stammen aus `assets/Edeka Barcodes.svg` und sind als
+Version „Edeka“ angelegt. **Die 12 Monate Haltbarkeit sind ein Platzhalter. Bitte prüfen.**
 
-Änderungen gelten sofort, ohne Neustart. `python3 -m etiketten check` prüft die
-Datei. Die bisherigen sechs Produkte und EANs stammen aus `assets/Edeka Barcodes.svg`.
-**Die 12 Monate Haltbarkeit sind ein Platzhalter. Bitte prüfen.**
+Mit `produkte_bearbeiten = false` in `config.toml` ist der Reiter ausgeblendet
+und die Liste nur lesbar (gedacht für den Notbetrieb).
 
 ## Konfiguration
 
@@ -95,11 +101,12 @@ anpassen (positiv = nach rechts/unten).
 
 ```sh
 python3 -m etiketten start [--port 8077] [--host 0.0.0.0] [--kein-browser]
-python3 -m etiketten produkte
+python3 -m etiketten produkte [--alle]                         # Kaffees mit Versionen
 python3 -m etiketten check
 python3 -m etiketten testdruck
 python3 -m etiketten zpl kolumbien --mhd 02.10.2027 --menge 3   # nur ausgeben
 python3 -m etiketten drucken kolumbien --menge 12              # MHD berechnet
+python3 -m etiketten drucken espresso-guatemala --version rewe # bei mehreren Versionen
 ```
 
 ## Projektstruktur
@@ -111,12 +118,12 @@ etiketten/
   dienst.py     verbindet Produkte, MHD, ZPL, Druckweg, Vorschau, Protokoll
   server.py     Weboberfläche + JSON-API
   cli.py        Kommandozeile
-  produkte.py   CSV lesen, EAN prüfen
+  produkte.py   Kaffees und Versionen: lesen, prüfen (EAN), speichern
   mhd.py        Datumsrechnung
   config.py     config.toml laden
   static/       Oberfläche ohne Build-Schritt: Web Component <etiketten-app>
                 (etiketten-app.js/.css), index.html bindet es ein
-data/produkte.csv
+data/produkte.json
 config.toml
 docs/           Architektur, Drucker-Einrichtung, Entscheidungen
 fragen/         Fragenkataloge (Druckprogramm, Etikettenkonzept)
@@ -133,5 +140,6 @@ python3 -m unittest discover -s tests -t .
 ## Weitere Dokumentation
 
 - [`docs/DRUCKER.md`](docs/DRUCKER.md): Drucker einrichten, Emulation, CUPS, Fehlersuche
-- [`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md): Aufbau, API, Erweiterung (Raspberry Pi, Enterprise-System)
+- [`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md): Aufbau, Einbindung in andere Seiten, Erweiterung (Raspberry Pi, Enterprise-System)
+- [`docs/API.md`](docs/API.md): HTTP-API und Datenmodell, der Vertrag für jeden Server (lokal und TOSTO)
 - [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md): getroffene Entscheidungen und offene Punkte

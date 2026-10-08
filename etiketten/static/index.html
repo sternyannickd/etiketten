@@ -13,9 +13,13 @@
 <body>
   <etiketten-app api="/api"></etiketten-app>
   <script type="module">
-    // Direktlink auf ein Produkt, z. B. http://localhost:8077/?produkt=kolumbien
-    const produkt = new URLSearchParams(location.search).get("produkt");
-    if (produkt) document.querySelector("etiketten-app").setAttribute("produkt", produkt);
+    // Direktlink, z. B. http://localhost:8077/?kaffee=kolumbien&version=edeka
+    // (?produkt= aus Version 0.2 funktioniert weiter)
+    const q = new URLSearchParams(location.search);
+    const app = document.querySelector("etiketten-app");
+    const kaffee = q.get("kaffee") || q.get("produkt");
+    if (kaffee) app.setAttribute("kaffee", kaffee);
+    if (q.get("version")) app.setAttribute("version", q.get("version"));
   </script>
 </body>
 </html>

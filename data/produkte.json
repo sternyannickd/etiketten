@@ -1,0 +1,95 @@
+{
+  "format": 1,
+  "kaffees": [
+    {
+      "id": "stern-espresso",
+      "name": "Stern Espresso",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064200000114",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    },
+    {
+      "id": "espresso-guatemala",
+      "name": "Espresso|Guatemala",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064200000138",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    },
+    {
+      "id": "nicaragua",
+      "name": "Nicaragua",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064200000183",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    },
+    {
+      "id": "kolumbien",
+      "name": "Kolumbien",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064000002134",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    },
+    {
+      "id": "aethiopien",
+      "name": "Äthiopien",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064000002066",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    },
+    {
+      "id": "guatemala",
+      "name": "Guatemala",
+      "mhd_monate": 12,
+      "archiviert": false,
+      "versionen": [
+        {
+          "id": "edeka",
+          "bezeichnung": "Edeka",
+          "gtin": "2064000001908",
+          "layout": "standard",
+          "archiviert": false
+        }
+      ]
+    }
+  ]
+}

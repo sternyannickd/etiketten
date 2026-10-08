@@ -1,13 +1,15 @@
 """Kleiner Webserver (nur Standardbibliothek): Oberfläche + JSON-API.
 
-API (alle Antworten JSON, außer /api/vorschau = PNG):
+API (alle Antworten JSON, außer /api/vorschau = PNG), ausführlich in docs/API.md:
   GET  /api/status                         Drucker- und Vorschaustatus
-  GET  /api/produkte                       Produktliste
-  GET  /api/mhd?produkt=ID[&abgepackt=YYYY-MM-DD]   berechnetes MHD
-  POST /api/zpl       {produkt, mhd?, menge?}  → {zpl}
-  POST /api/vorschau  {produkt, mhd?, menge?}  → image/png
-  POST /api/drucken   {produkt, mhd?, menge?}  → {ok, meldung}
+  GET  /api/produkte[?alle=1]              Kaffees mit Versionen (alle = inkl. archivierte)
+  GET  /api/mhd?kaffee=ID[&abgepackt=YYYY-MM-DD]    berechnetes MHD
+  POST /api/zpl       {kaffee, version?, mhd?, menge?}  → {zpl}
+  POST /api/vorschau  {kaffee, version?, mhd?}          → image/png
+  POST /api/drucken   {kaffee, version?, mhd?, menge?}  → {ok, meldung}
   POST /api/testdruck                      Kalibrier-/Testetikett
+  POST /api/kaffees          {name, mhd_monate, versionen}  neuer Kaffee → {ok, kaffee}
+  PUT  /api/kaffees/<id>     {name, mhd_monate, archiviert, versionen}  ändern → {ok, kaffee}
 """
 
 from __future__ import annotations
@@ -19,7 +21,7 @@ from datetime import date
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from .dienst import Druckdienst, EingabeFehler, VorschauFehler
 from .drucker import DruckFehler
@@ -91,12 +93,13 @@ def handler_fuer(dienst: Druckdienst):
                 raise EingabeFehler("Anfrage muss ein JSON-Objekt sein")
             return daten
 
-        def _auftrag(self) -> tuple[str, date | None, int]:
+        def _auftrag(self) -> tuple[str, str | None, date | None, int]:
             daten = self._body()
-            produkt = str(daten.get("produkt") or "")
-            if not produkt:
-                raise EingabeFehler("Kein Produkt gewählt")
-            return produkt, _datum(daten.get("mhd"), "MHD"), _menge(daten.get("menge"))
+            kaffee = str(daten.get("kaffee") or "")
+            if not kaffee:
+                raise EingabeFehler("Kein Kaffee gewählt")
+            version = str(daten.get("version") or "") or None
+            return kaffee, version, _datum(daten.get("mhd"), "MHD"), _menge(daten.get("menge"))
 
         # --- Routen ------------------------------------------------------------
 
@@ -109,14 +112,16 @@ def handler_fuer(dienst: Druckdienst):
                         "drucker_name": dienst.konfig["drucker"].get("name", ""),
                         "transport": dienst.konfig["drucker"].get("transport", ""),
                         "vorschau": dienst.vorschau_aktiv,
+                        "produkte_bearbeiten": dienst.bearbeiten_erlaubt,
                     })
+                q = parse_qs(url.query)
                 if url.path == "/api/produkte":
-                    return self._json([p.als_dict() for p in dienst.produkte()])
+                    alle = (q.get("alle") or [""])[0] in ("1", "true")
+                    return self._json([k.als_dict(mit_archiv=alle) for k in dienst.kaffees(alle)])
                 if url.path == "/api/mhd":
-                    q = parse_qs(url.query)
-                    produkt = (q.get("produkt") or [""])[0]
+                    kaffee = (q.get("kaffee") or [""])[0]
                     abgepackt = _datum((q.get("abgepackt") or [""])[0], "Abpackdatum")
-                    return self._json({"mhd": dienst.mhd_vorschlag(produkt, abgepackt).isoformat()})
+                    return self._json({"mhd": dienst.mhd_vorschlag(kaffee, abgepackt).isoformat()})
                 return self._statisch(url.path)
             except (EingabeFehler, ProduktFehler) as e:
                 return self._fehler(400, str(e))
@@ -125,19 +130,22 @@ def handler_fuer(dienst: Druckdienst):
             pfad = urlparse(self.path).path
             try:
                 if pfad == "/api/zpl":
-                    produkt, mhd, menge = self._auftrag()
-                    return self._json({"ok": True, "zpl": dienst.etikett(produkt, mhd, menge)})
+                    kaffee, version, mhd, menge = self._auftrag()
+                    return self._json({"ok": True, "zpl": dienst.etikett(kaffee, version, mhd, menge)})
                 if pfad == "/api/vorschau":
-                    produkt, mhd, menge = self._auftrag()
+                    kaffee, version, mhd, _ = self._auftrag()
                     # Für die Vorschau immer nur ein Etikett rendern
-                    png = dienst.vorschau(dienst.etikett(produkt, mhd, 1))
+                    png = dienst.vorschau(dienst.etikett(kaffee, version, mhd, 1))
                     return self._senden(200, png, "image/png")
                 if pfad == "/api/drucken":
-                    produkt, mhd, menge = self._auftrag()
-                    meldung = dienst.drucken(produkt, mhd, menge)
+                    kaffee, version, mhd, menge = self._auftrag()
+                    meldung = dienst.drucken(kaffee, version, mhd, menge)
                     return self._json({"ok": True, "meldung": f"{menge} Etikett(en) gedruckt – {meldung}"})
                 if pfad == "/api/testdruck":
                     return self._json({"ok": True, "meldung": f"Testetikett: {dienst.testdruck()}"})
+                if pfad == "/api/kaffees":
+                    kaffee = dienst.kaffee_speichern(self._body())
+                    return self._json({"ok": True, "kaffee": kaffee.als_dict()})
                 return self._fehler(404, "Nicht gefunden")
             except (EingabeFehler, ProduktFehler, ValueError) as e:
                 return self._fehler(400, str(e))
@@ -145,6 +153,17 @@ def handler_fuer(dienst: Druckdienst):
                 return self._fehler(502, str(e))
             except DruckFehler as e:
                 return self._fehler(503, str(e))
+
+        def do_PUT(self):
+            pfad = urlparse(self.path).path
+            try:
+                if pfad.startswith("/api/kaffees/"):
+                    kaffee_id = unquote(pfad.removeprefix("/api/kaffees/"))
+                    kaffee = dienst.kaffee_speichern(self._body(), kaffee_id)
+                    return self._json({"ok": True, "kaffee": kaffee.als_dict()})
+                return self._fehler(404, "Nicht gefunden")
+            except (EingabeFehler, ProduktFehler) as e:
+                return self._fehler(400, str(e))
 
         def _statisch(self, pfad: str):
             name = "index.html" if pfad in ("", "/") else pfad.removeprefix("/static/")

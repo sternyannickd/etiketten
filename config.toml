@@ -1,7 +1,10 @@
 # Konfiguration des Etikettendrucks.
 # Alle Maße in Millimetern. Relative Pfade gelten relativ zu dieser Datei.
 
-produkte = "data/produkte.csv"
+produkte = "data/produkte.json"
+# true = Kaffees und Versionen lassen sich in der Oberfläche anlegen und ändern.
+# false im Notbetrieb, wenn die Liste vom Server kommt und lokal nicht abweichen soll.
+produkte_bearbeiten = true
 protokoll = "var/druckprotokoll.csv"   # leer ("") = kein Protokoll
 
 [server]

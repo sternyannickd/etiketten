@@ -26,9 +26,9 @@ class ServerTest(unittest.TestCase):
         cls.httpd.shutdown()
         cls.httpd.server_close()
 
-    def anfrage(self, pfad, daten=None):
+    def anfrage(self, pfad, daten=None, methode=None):
         body = None if daten is None else json.dumps(daten).encode()
-        req = urllib.request.Request(self.basis + pfad, data=body,
+        req = urllib.request.Request(self.basis + pfad, data=body, method=methode,
                                      headers={"Content-Type": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=5) as r:
@@ -56,28 +56,52 @@ class ServerTest(unittest.TestCase):
 
     def test_produkte_und_status(self):
         _, _, inhalt = self.anfrage("/api/produkte")
-        self.assertEqual(json.loads(inhalt)[1]["name"], "Espresso Guatemala")
+        kaffee = json.loads(inhalt)[1]
+        self.assertEqual(kaffee["anzeigename"], "Espresso Guatemala")
+        self.assertEqual(len(kaffee["versionen"]), 2)
         _, _, inhalt = self.anfrage("/api/status")
         self.assertTrue(json.loads(inhalt)["drucker"]["ok"])
+        self.assertTrue(json.loads(inhalt)["produkte_bearbeiten"])
 
     def test_mhd(self):
-        _, _, inhalt = self.anfrage("/api/mhd?produkt=kolumbien&abgepackt=2026-10-02")
+        _, _, inhalt = self.anfrage("/api/mhd?kaffee=kolumbien&abgepackt=2026-10-02")
         self.assertEqual(json.loads(inhalt)["mhd"], "2027-10-02")
 
     def test_drucken(self):
-        status, _, inhalt = self.anfrage("/api/drucken", {"produkt": "kolumbien", "menge": 2})
+        status, _, inhalt = self.anfrage("/api/drucken", {"kaffee": "kolumbien", "menge": 2})
         self.assertEqual(status, 200, inhalt)
         self.assertTrue(json.loads(inhalt)["ok"])
 
     def test_fehlerhafte_eingaben(self):
-        for daten in ({}, {"produkt": "x"}, {"produkt": "kolumbien", "menge": "viele"},
-                      {"produkt": "kolumbien", "mhd": "morgen"}, {"produkt": "kolumbien", "menge": 0}):
+        for daten in ({}, {"kaffee": "x"}, {"kaffee": "kolumbien", "menge": "viele"},
+                      {"kaffee": "kolumbien", "mhd": "morgen"}, {"kaffee": "kolumbien", "menge": 0},
+                      {"kaffee": "espresso-guatemala"}, {"kaffee": "kolumbien", "version": "lidl"}):
             status, _, inhalt = self.anfrage("/api/drucken", daten)
             self.assertEqual(status, 400, daten)
             self.assertFalse(json.loads(inhalt)["ok"])
 
+    def test_kaffee_anlegen_und_aendern(self):
+        neu = {"name": "Peru", "mhd_monate": 12,
+               "versionen": [{"bezeichnung": "Edeka", "gtin": "2064000001908"}]}
+        status, _, inhalt = self.anfrage("/api/kaffees", neu)
+        self.assertEqual(status, 200, inhalt)
+        kaffee = json.loads(inhalt)["kaffee"]
+        kaffee["versionen"][0]["archiviert"] = True
+        status, _, inhalt = self.anfrage(f"/api/kaffees/{kaffee['id']}", kaffee, "PUT")
+        self.assertEqual(status, 200, inhalt)
+        _, _, inhalt = self.anfrage("/api/produkte")
+        self.assertNotIn("peru", [k["id"] for k in json.loads(inhalt)])
+        _, _, inhalt = self.anfrage("/api/produkte?alle=1")
+        self.assertIn("peru", [k["id"] for k in json.loads(inhalt)])
+
+    def test_kaffee_mit_falscher_gtin(self):
+        status, _, inhalt = self.anfrage("/api/kaffees", {"name": "X", "mhd_monate": 12, "versionen": [
+            {"bezeichnung": "A", "gtin": "123"}]})
+        self.assertEqual(status, 400)
+        self.assertIn("13 Ziffern", json.loads(inhalt)["fehler"])
+
     def test_vorschau_aus_gibt_502_druck_bleibt_moeglich(self):
-        status, _, _ = self.anfrage("/api/vorschau", {"produkt": "kolumbien"})
+        status, _, _ = self.anfrage("/api/vorschau", {"kaffee": "kolumbien"})
         self.assertEqual(status, 502)
 
 

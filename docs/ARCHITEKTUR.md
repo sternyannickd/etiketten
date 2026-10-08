@@ -4,8 +4,9 @@
 
 ```
             ┌──────────── Vorschau (labelary.com, optional)
-Produkt ──► ZPL-Text ──┤
- + MHD                 └──────────── Druckweg ──► Citizen
+Kaffee  ──► ZPL-Text ──┤
+ + Version             └──────────── Druckweg ──► Citizen
+ + MHD
  + Menge
 ```
 
@@ -18,11 +19,11 @@ ZPL-Text, der sowohl in die Vorschau als auch zum Drucker geht. Der Druckweg
 | Modul | Aufgabe | Kennt |
 |-------|---------|-------|
 | `config.py` | `config.toml` laden, mit Standardwerten zusammenführen | – |
-| `produkte.py` | CSV lesen, EAN-13 prüfen | – |
+| `produkte.py` | Kaffees mit Versionen: JSON lesen, prüfen (EAN-13, GTIN eindeutig), atomar speichern | – |
 | `mhd.py` | Datum + Monate | – |
 | `zpl.py` | Layout (mm) → ZPL (Druckpunkte), Titel umbrechen und Schrift anpassen, Testetikett | config |
 | `drucker.py` | Druckwege `usb`, `cups`, `tcp`, `datei`, jeweils mit `pruefen()` und `senden(bytes)` | config |
-| `dienst.py` | `Druckdienst`: der Ablauf, also Produkt suchen, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau | alle oben |
+| `dienst.py` | `Druckdienst`: der Ablauf, also Kaffee und Version suchen, Produkte ändern, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau | alle oben |
 | `server.py` | HTTP: Oberfläche und JSON-API | dienst |
 | `cli.py` | Kommandozeile | dienst, server |
 | `static/` | Web Component `<etiketten-app>` ohne Build-Schritt, `index.html` bindet es ein | API |
@@ -46,27 +47,22 @@ um, was zu überlappenden Zeilen führen würde.
 
 ## HTTP-API
 
-Alle Anfragen und Antworten sind JSON (außer der Vorschau, die ein PNG liefert). Fehler
-kommen als `{"ok": false, "fehler": "…"}`, mit Status 400 bei falscher Eingabe, 502 bei
-Vorschaufehlern und 503 bei Druckfehlern.
+Vollständig mit Datenmodell in [API.md](API.md). Kurz:
 
-| Methode & Pfad | Eingabe | Antwort |
-|----------------|---------|---------|
-| `GET /api/status` | – | `{drucker:{ok,meldung,hinweis}, drucker_name, transport, vorschau}` |
-| `GET /api/produkte` | – | `[{id,name,gtin,mhd_monate}]` |
-| `GET /api/mhd?produkt=ID&abgepackt=JJJJ-MM-TT` | – | `{mhd}` |
-| `POST /api/zpl` | `{produkt, mhd?, menge?}` | `{ok, zpl}` |
-| `POST /api/vorschau` | `{produkt, mhd?}` | PNG |
-| `POST /api/drucken` | `{produkt, mhd?, menge?}` | `{ok, meldung}` |
-| `POST /api/testdruck` | – | `{ok, meldung}` |
-
-`mhd` fehlt → wird berechnet. `menge` fehlt → 1.
+| Methode & Pfad | Zweck |
+|----------------|-------|
+| `GET /api/status` | Drucker, Vorschau, ob Produkte bearbeitbar sind |
+| `GET /api/produkte[?alle=1]` | Kaffees mit Versionen |
+| `GET /api/mhd?kaffee=ID&abgepackt=…` | berechnetes MHD |
+| `POST /api/zpl`, `/api/vorschau`, `/api/drucken` | `{kaffee, version?, mhd?, menge?}` |
+| `POST /api/testdruck` | Testetikett |
+| `POST /api/kaffees`, `PUT /api/kaffees/<id>` | Kaffee anlegen bzw. ändern |
 
 Beispiel:
 
 ```sh
 curl -X POST localhost:8077/api/drucken -H 'Content-Type: application/json' \
-     -d '{"produkt":"kolumbien","menge":6}'
+     -d '{"kaffee":"kolumbien","version":"edeka","menge":6}'
 ```
 
 ## Einbinden in andere Seiten
@@ -81,13 +77,14 @@ Die Oberfläche ist ein Web Component. Jede Seite kann sie einbinden:
 | Attribut | Bedeutung |
 |----------|-----------|
 | `api` | Basisadresse der HTTP-API (Standard `/api`) |
-| `produkt` | Produkt-ID, die beim Start gewählt ist |
+| `kaffee`, `version` | Kaffee und Version, die beim Start gewählt sind |
 | `titel` | Überschrift, Standard „Etikettendruck“. `titel=""` blendet sie aus |
 
 **Aussehen:** Das Component kapselt seine Stile (Shadow DOM), übernimmt aber
 CSS-Variablen der Seite: `--farbe-flaeche`, `--farbe-text`, `--farbe-text-leise`,
 `--farbe-linie`, `--farbe-akzent`, `--farbe-akzent-text`, `--farbe-akzent-hell`,
-`--farbe-gut`, `--farbe-schlecht`, `--farbe-warn`, `--schrift`, `--radius`.
+`--farbe-gut`, `--farbe-schlecht`, `--farbe-warn`, `--schrift`, `--radius`,
+`--farbschema` (`dark` bei dunklem Design).
 Nicht gesetzte Variablen fallen auf das bisherige Rösterei-Design zurück. Das
 Layout richtet sich nach der Breite des Components (Container Query), nicht nach
 dem Fenster. Es funktioniert also auch in einer schmalen Spalte.
@@ -111,10 +108,10 @@ der Dienst nicht.
 ```python
 from etiketten import config
 from etiketten.dienst import Druckdienst
-Druckdienst(config.laden()).drucken("kolumbien", menge=6)
+Druckdienst(config.laden()).drucken("kolumbien", "edeka", menge=6)
 ```
 
-Soll das Enterprise-System auch die Produktdaten liefern, wird `Druckdienst.produkte()`
+Soll das Enterprise-System auch die Produktdaten liefern, wird `Druckdienst.kaffees()`
 durch eine andere Quelle ersetzt. Alles andere bleibt.
 
 **Neuer Druckweg** (z. B. Windows-Rohdruck): in `drucker.py` eine Klasse mit
@@ -122,7 +119,7 @@ durch eine andere Quelle ersetzt. Alles andere bleibt.
 
 **Komplexere Etiketten** (Konzept, `fragen/02-etikettenkonzept.md`): ein
 weiterer Erzeuger neben `zpl.erzeugen()`, z. B. mit Röstdatum, Herkunft und
-QR-Code (`^BQ`). Die Produkt-CSV bekommt dafür weitere Spalten.
+QR-Code (`^BQ`). Die Version wählt das Design über ihr Feld `layout`, der Kaffee bekommt dafür weitere Felder.
 
 **Mehrere Drucker:** heute bewusst nur einer. Wenn nötig, wird `[drucker]` zu
 einer Liste, und der Auftrag bekommt ein Feld `drucker`.
