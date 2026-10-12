@@ -64,7 +64,9 @@ Oben auf der Seite **Probeetikett Verpackung** wählen (oder `http://localhost:8
    heutige Datum sind vorbelegt. Das **Röstdatum** wird aus der Charge gelesen,
    das **MHD** daraus berechnet (Haltbarkeit des Kaffees), von Hand änderbar.
    `Ro…` statt `Rö…` geht auch.
-3. **Anzahl** wählen, **Drucken**.
+3. **Gestaltung** wählen (Schlicht, Klassisch oder Banner), **Anzahl** wählen,
+   **Drucken**. Der Browser merkt sich die Gestaltung. Voreinstellung und Kopfzeile
+   („Stern Rösterei Wissmüller“) stehen unter `[verpackung]` in `config.toml`.
 
 Der **QR-Code** führt zu `qr_adresse` unter `[verpackung]` in `config.toml`.
 Größe, Layout und Drucker stehen dort ebenfalls (`[verpackung.etikett]`,
@@ -76,6 +78,7 @@ Kommandozeile:
 ```sh
 python3 -m etiketten verpackung kolumbien --charge Rö261012-01 --menge 2
 python3 -m etiketten verpackung kolumbien --charge Rö261012-01 --zpl   # nur ausgeben
+python3 -m etiketten verpackung kolumbien --charge Rö261012-01 --stil banner
 python3 -m etiketten testdruck --verpackung                            # Rahmen in 100 × 150
 ```
 

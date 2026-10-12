@@ -54,6 +54,8 @@ STANDARD: dict = {
         "protokoll": "var/verpackungsprotokoll.csv",
         "qr_adresse": "https://stern-kaffee.de",
         "qr_text": "",
+        "stil": "schlicht",
+        "kopfzeile": "",
         "drucker": {"name": "Citizen CL-S521 (Verpackung)"},
         "etikett": {"breite": 100.0, "hoehe": 150.0, "versatz_x": 0.0, "versatz_y": 0.0},
         "layout": {

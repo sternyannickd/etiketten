@@ -134,7 +134,7 @@ class Druckdienst:
         return self.konfig.fuer_verpackung()
 
     def _verpackung_daten(self, kaffee_id: str, charge_text: str, mhd_datum: date | None,
-                          menge: int) -> zpl.VerpackungsDaten:
+                          menge: int, stil: str | None = None) -> zpl.VerpackungsDaten:
         k = self.kaffee(kaffee_id)
         try:
             c = charge.lesen(charge_text)
@@ -148,17 +148,20 @@ class Druckdienst:
         if mhd_datum < date.today():
             raise EingabeFehler(f"MHD {mhd_datum:%d.%m.%Y} liegt in der Vergangenheit")
         qr = str(self.konfig["verpackung"].get("qr_adresse") or "")
-        return zpl.VerpackungsDaten(k.name, k.info, c.text, c.roestdatum, mhd_datum, qr, menge)
+        stil = stil or str(self.konfig["verpackung"].get("stil") or "schlicht")
+        if stil not in zpl.STILE:
+            raise EingabeFehler(f"Unbekannte Gestaltung {stil!r} (möglich: {', '.join(zpl.STILE)})")
+        return zpl.VerpackungsDaten(k.name, k.info, c.text, c.roestdatum, mhd_datum, qr, menge, stil)
 
     def verpackung_etikett(self, kaffee_id: str, charge_text: str,
-                           mhd_datum: date | None = None, menge: int = 1) -> str:
-        daten = self._verpackung_daten(kaffee_id, charge_text, mhd_datum, menge)
+                           mhd_datum: date | None = None, menge: int = 1, stil: str | None = None) -> str:
+        daten = self._verpackung_daten(kaffee_id, charge_text, mhd_datum, menge, stil)
         return zpl.verpackung_erzeugen(self.verpackung_konfig, daten)
 
     def verpackung_drucken(self, kaffee_id: str, charge_text: str,
-                           mhd_datum: date | None = None, menge: int = 1) -> str:
+                           mhd_datum: date | None = None, menge: int = 1, stil: str | None = None) -> str:
         konfig = self.verpackung_konfig
-        daten = self._verpackung_daten(kaffee_id, charge_text, mhd_datum, menge)
+        daten = self._verpackung_daten(kaffee_id, charge_text, mhd_datum, menge, stil)
         text = zpl.verpackung_erzeugen(konfig, daten)
         k = self.kaffee(kaffee_id)
         try:

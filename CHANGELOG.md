@@ -12,7 +12,10 @@
   (`ueberschrift_schrift`), `||` = Leerzeile. Fließtext jetzt 3,4 mm.
 - Info für Stern Espresso eingetragen.
 - `qr_adresse` jetzt `https://stern-kaffee.de`.
-- Entwürfe für ein ansprechenderes Verpackungsetikett in `docs/entwuerfe/`.
+- Verpackungsetikett in drei **Gestaltungen**: Schlicht, Klassisch (Rahmen, Stern)
+  und Banner (schwarzes Band), umschaltbar in der Oberfläche. API-Feld `stil`,
+  Kommandozeile `--stil`, Voreinstellung `stil` und `kopfzeile` unter `[verpackung]`.
+  Entwürfe dazu in `docs/entwuerfe/`.
 - `.claude/settings.json`: war kein gültiges JSON (Windows-Pfad). Jetzt `../tosto`,
   Hook läuft unter Linux (`python3`) und Windows (`python`).
 

@@ -126,18 +126,21 @@ Antwort wie bei `POST /kaffees`.
 
 ### `GET /verpackung/status`
 
-Wie `GET /status`, aber für den Drucker der Verpackungsetiketten.
+Wie `GET /status`, aber für den Drucker der Verpackungsetiketten. `stil` ist die
+voreingestellte Gestaltung aus `config.toml`.
 
 ### `POST /verpackung/drucken`, `POST /verpackung/zpl`, `POST /verpackung/vorschau`
 
 ```json
-{"kaffee": "kolumbien", "charge": "Rö261012-01", "mhd": "2027-10-12", "menge": 2}
+{"kaffee": "kolumbien", "charge": "Rö261012-01", "mhd": "2027-10-12", "menge": 2, "stil": "klassisch"}
 ```
 
 - `charge` Pflicht, Format `RöJJMMTT-NN` (auch `Ro…`/`Roe…`, Groß/klein egal; auf dem
   Etikett steht immer `Rö…`). Das Röstdatum ist das Datum in der Charge, es darf
   nicht in der Zukunft liegen.
 - `mhd` fehlt → Röstdatum + `mhd_monate` des Kaffees.
+- `stil` optional: `schlicht`, `klassisch` (Rahmen, Stern) oder `banner` (schwarzes
+  Band). Fehlt er → `stil` aus `config.toml`. Unbekannt → 400.
 - Versionen spielen hier keine Rolle (kein Barcode).
 - Antworten wie beim Produktetikett.
 

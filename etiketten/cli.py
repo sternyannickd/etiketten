@@ -11,7 +11,7 @@ import webbrowser
 from datetime import date, datetime
 from pathlib import Path
 
-from . import config, drucker, server
+from . import config, drucker, server, zpl
 from .dienst import Druckdienst, EingabeFehler, VorschauFehler
 from .produkte import ProduktFehler
 
@@ -94,9 +94,9 @@ def cmd_testdruck(dienst: Druckdienst, args) -> int:
 
 def cmd_verpackung(dienst: Druckdienst, args) -> int:
     if args.zpl:
-        sys.stdout.write(dienst.verpackung_etikett(args.kaffee, args.charge, args.mhd, args.menge))
+        sys.stdout.write(dienst.verpackung_etikett(args.kaffee, args.charge, args.mhd, args.menge, args.stil))
     else:
-        print(dienst.verpackung_drucken(args.kaffee, args.charge, args.mhd, args.menge))
+        print(dienst.verpackung_drucken(args.kaffee, args.charge, args.mhd, args.menge, args.stil))
     return 0
 
 
@@ -181,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--charge", required=True, help="Chargennummer, z. B. Rö261012-01")
     p.add_argument("--mhd", type=_datum, help="MHD (Standard: Röstdatum + Haltbarkeit)")
     p.add_argument("--menge", type=int, default=1)
+    p.add_argument("--stil", choices=zpl.STILE, help="Gestaltung (Standard: stil in config.toml)")
     p.add_argument("--zpl", action="store_true", help="nur ZPL ausgeben, nicht drucken")
     p.set_defaults(func=cmd_verpackung)
 

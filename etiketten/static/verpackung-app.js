@@ -27,6 +27,8 @@ const VORLAGE = `
     .charge-pruefung { min-height: 1.2em; }
     .charge-pruefung.gut { color: var(--gut); }
     .charge-pruefung.schlecht { color: var(--schlecht); }
+    .gestaltung { margin-bottom: 14px; }
+    .gestaltung .chips { margin-top: 6px; }
   </style>
   <header class="kopf">
     <h1 id="titel"></h1>
@@ -73,6 +75,14 @@ const VORLAGE = `
 
     <section class="karte karte--druck">
       <h2><span class="nr">3</span> Drucken</h2>
+      <div class="gestaltung">
+        <span class="unterzeile">Gestaltung</span>
+        <div id="stile" class="chips" role="radiogroup" aria-label="Gestaltung">
+          <button type="button" class="chip" role="radio" aria-checked="false" data-stil="schlicht">Schlicht</button>
+          <button type="button" class="chip" role="radio" aria-checked="false" data-stil="klassisch">Klassisch</button>
+          <button type="button" class="chip" role="radio" aria-checked="false" data-stil="banner">Banner</button>
+        </div>
+      </div>
       <figure class="vorschau">
         <img id="vorschau-bild" alt="Vorschau des Verpackungsetiketts" hidden>
         <figcaption id="vorschau-text">Kaffee und Charge wählen für eine Vorschau</figcaption>
@@ -110,6 +120,7 @@ class VerpackungApp extends HTMLElement {
       vorschauNr: 0,
       vorschauUrl: null,
       vorschauSchluessel: "",
+      stil: null,  // null = Standard aus config.toml (kommt mit dem Status)
     };
     this.vorschauTimer = null;
     this.gestartet = false;
@@ -159,6 +170,7 @@ class VerpackungApp extends HTMLElement {
     try {
       const s = await this.api("/verpackung/status");
       this.zustand.vorschauAktiv = s.vorschau;
+      if (!this.zustand.stil && s.stil) this.stilWaehlen(s.stil, false);
       knopf.className = "status " + (s.ok ? "status--ok" : "status--fehler");
       this.$("status-text").textContent = s.ok ? `${s.drucker_name} bereit` : `${s.drucker_name}: Problem`;
       const hinweis = this.$("status-hinweis");
@@ -264,7 +276,17 @@ class VerpackungApp extends HTMLElement {
 
   auftrag() {
     return { kaffee: this.zustand.kaffee, charge: this.$("charge").value.trim(),
-             mhd: this.$("mhd").value, menge: this.menge() };
+             mhd: this.$("mhd").value, menge: this.menge(), stil: this.zustand.stil || "" };
+  }
+
+  // Gestaltung des Etiketts; die Wahl merkt sich der Browser (nur Komfort).
+  stilWaehlen(stil, merken = true) {
+    this.zustand.stil = stil;
+    for (const b of this.alle("#stile .chip")) b.setAttribute("aria-checked", String(b.dataset.stil === stil));
+    if (merken) {
+      try { localStorage.setItem("etiketta-stil", stil); } catch { /* ohne Speicher geht es auch */ }
+    }
+    this.aktualisieren();
   }
 
   bereit() {
@@ -305,7 +327,7 @@ class VerpackungApp extends HTMLElement {
       return;
     }
     const a = this.auftrag();
-    const schluessel = `${a.kaffee}|${a.charge}|${a.mhd}`;
+    const schluessel = `${a.kaffee}|${a.charge}|${a.mhd}|${a.stil}`;
     if (schluessel === z.vorschauSchluessel && !bild.hidden) return;
     const nr = ++z.vorschauNr;
     z.vorschauSchluessel = schluessel;
@@ -380,6 +402,10 @@ class VerpackungApp extends HTMLElement {
     $("mhd").addEventListener("input", () => { this.mhdManuell(true); this.aktualisieren(); });
     $("mhd-reset").addEventListener("click", () => { this.mhdManuell(false); this.mhdBerechnen(); });
     $("menge").addEventListener("input", () => this.aktualisieren());
+    for (const b of this.alle("#stile .chip")) b.addEventListener("click", () => this.stilWaehlen(b.dataset.stil));
+    let gemerkt = null;
+    try { gemerkt = localStorage.getItem("etiketta-stil"); } catch { /* ohne Speicher */ }
+    if (["schlicht", "klassisch", "banner"].includes(gemerkt)) this.stilWaehlen(gemerkt, false);
     $("menge").addEventListener("change", () => { $("menge").value = this.menge(); this.aktualisieren(); });
     for (const b of this.alle("[data-schritt]")) {
       b.addEventListener("click", () => {

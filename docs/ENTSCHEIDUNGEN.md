@@ -93,9 +93,10 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
     und **endgültige Etikettengröße** mit dem künftigen Drucker.
 13. **Info** pro Kaffee eintragen (Reiter Produkte). Stern Espresso hat sie seit 12.10.2026
     (Überschrift mit `#`, Fließtext 3,4 mm, passt ohne Kürzen).
-14. **Aussehen:** Zwei Entwürfe in `docs/entwuerfe/` (A: Rahmen und Stern-Ornament,
-    B: schwarzes Band). Auswahl steht aus. Eigene Schrift nur als Grafik möglich,
-    der Drucker hat nur eine skalierbare Schrift.
+14. **Aussehen:** Drei Gestaltungen zur Wahl in der Oberfläche: Schlicht, Klassisch
+    (Entwurf A: Rahmen, Stern-Ornament) und Banner (Entwurf B: schwarzes Band),
+    Kopfzeile „Stern Rösterei Wissmüller“. Welche bleibt, ist offen. Eine eigene
+    Schrift ginge nur als Grafik, der Drucker hat nur eine skalierbare Schrift.
 15. **Windows-Versanddruck** nach der automatischen Umschaltung auf ZPL prüfen
     (`docs/DRUCKER.md` Abschnitt 3a).
 

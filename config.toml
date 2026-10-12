@@ -88,6 +88,10 @@ aktiv = true
 protokoll = "var/verpackungsprotokoll.csv"
 qr_adresse = "https://stern-kaffee.de"       # wohin der QR-Code führt
 qr_text = ""                                  # Text unter dem QR-Code, leer = Adresse ohne https://
+# Gestaltung, wenn in der Oberfläche nichts gewählt ist: "schlicht", "klassisch"
+# (Rahmen, Stern) oder "banner" (schwarzes Band). Entwürfe: docs/entwuerfe/
+stil = "schlicht"
+kopfzeile = "Stern Rösterei Wissmüller"       # oben bei klassisch/banner, leer = keine
 
 # Drucker: alles aus [drucker] gilt, außer was hier steht. Hängt der Drucker für
 # die Verpackung an einem anderen Rechner, dort in config.lokal.toml einstellen.

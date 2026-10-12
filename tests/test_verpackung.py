@@ -86,6 +86,29 @@ class VerpackungZplTest(unittest.TestCase):
         self.assertLessEqual(zpl.qr_module("https://www.stern-kaffee.de") * faktor, feld)
         self.assertGreaterEqual(faktor, 5)
 
+    def test_gestaltungen(self):
+        konfig = config.standard().fuer_verpackung()
+        konfig["verpackung"]["kopfzeile"] = "Stern Rösterei"
+        for stil in ("klassisch", "banner"):
+            with self.subTest(stil=stil):
+                text = zpl.verpackung_erzeugen(konfig, daten(stil=stil, info="# Klassiker|Nussig"))
+                for teil in ("^FDEspresso^FS", "^FDKlassiker^FS", "^FDNussig^FS", "^FDRö261012-01^FS",
+                             "^FD12.10.2027^FS", "S T E R N  R Ö S T E R E I", "^BQN,2,", "^GFA,"):
+                    self.assertIn(teil, text)
+                self.assertEqual("^FR" in text, stil == "banner")
+                self.assertTrue(text.startswith("^XA") and text.rstrip().endswith("^XZ"))
+
+    def test_unbekannte_gestaltung(self):
+        with self.assertRaises(ValueError):
+            zpl.verpackung_erzeugen(self.konfig, daten(stil="bunt"))
+
+    def test_stern_grafik(self):
+        grafik = zpl.stern(40)
+        _, gesamt, _, je_zeile, hexdaten = grafik.split(",")
+        self.assertEqual((int(gesamt), int(je_zeile)), (200, 5))
+        self.assertEqual(len(hexdaten), 400)
+        self.assertNotEqual(set(hexdaten), {"0"})
+
     def test_qr_mit_steuerzeichen_abgelehnt(self):
         with self.assertRaises(ValueError):
             zpl.verpackung_erzeugen(self.konfig, daten(qr="https://x.de/^XZ"))
@@ -223,12 +246,20 @@ class VerpackungServerTest(unittest.TestCase):
         status, inhalt = self.anfrage("/api/verpackung/drucken", {"kaffee": "kolumbien", "charge": CHARGE, "menge": 3})
         self.assertEqual(status, 200)
         self.assertIn("3 Verpackungsetikett", json.loads(inhalt)["meldung"])
+        status, inhalt = self.anfrage("/api/verpackung/zpl", {"kaffee": "kolumbien", "charge": CHARGE,
+                                                              "stil": "banner"})
+        self.assertEqual(status, 200)
+        self.assertIn("^FR", json.loads(inhalt)["zpl"])
+        self.assertEqual(json.loads(self.anfrage("/api/verpackung/status")[1])["stil"], "schlicht")
 
     def test_fehler(self):
         self.assertEqual(self.anfrage("/api/verpackung/drucken", {"kaffee": "kolumbien"})[0], 400)
         status, inhalt = self.anfrage("/api/verpackung/zpl", {"kaffee": "kolumbien", "charge": "x"})
         self.assertEqual(status, 400)
         self.assertIn("Format", json.loads(inhalt)["fehler"])
+        status, inhalt = self.anfrage("/api/verpackung/zpl", {"kaffee": "kolumbien", "charge": CHARGE, "stil": "bunt"})
+        self.assertEqual(status, 400)
+        self.assertIn("Gestaltung", json.loads(inhalt)["fehler"])
 
 
 if __name__ == "__main__":

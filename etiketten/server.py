@@ -13,9 +13,9 @@ API (alle Antworten JSON, außer /api/vorschau = PNG), ausführlich in docs/API.
 
 Verpackungsetikett (zweite Etikettenart, Oberfläche /verpackung):
   GET  /api/verpackung/status
-  POST /api/verpackung/zpl       {kaffee, charge, mhd?, menge?}  → {zpl}
-  POST /api/verpackung/vorschau  {kaffee, charge, mhd?}          → image/png
-  POST /api/verpackung/drucken   {kaffee, charge, mhd?, menge?}  → {ok, meldung}
+  POST /api/verpackung/zpl       {kaffee, charge, mhd?, menge?, stil?}  → {zpl}
+  POST /api/verpackung/vorschau  {kaffee, charge, mhd?, stil?}          → image/png
+  POST /api/verpackung/drucken   {kaffee, charge, mhd?, menge?, stil?}  → {ok, meldung}
   POST /api/verpackung/testdruck
 """
 
@@ -75,6 +75,7 @@ def _status(dienst: Druckdienst, konfig, drucker_status) -> dict:
         "vorschau": dienst.vorschau_aktiv,
         "produkte_bearbeiten": dienst.bearbeiten_erlaubt,
         "verpackung": dienst.verpackung_aktiv,
+        "stil": konfig["verpackung"].get("stil", "schlicht"),
     }
 
 
@@ -139,7 +140,7 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
             version = str(daten.get("version") or "") or None
             return kaffee, version, _datum(daten.get("mhd"), "MHD"), _menge(daten.get("menge"))
 
-        def _verpackung_auftrag(self) -> tuple[str, str, date | None, int]:
+        def _verpackung_auftrag(self) -> tuple[str, str, date | None, int, str | None]:
             daten = self._body()
             kaffee = str(daten.get("kaffee") or "")
             if not kaffee:
@@ -147,7 +148,8 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
             charge = str(daten.get("charge") or "")
             if not charge:
                 raise EingabeFehler("Keine Charge angegeben")
-            return kaffee, charge, _datum(daten.get("mhd"), "MHD"), _menge(daten.get("menge"))
+            stil = str(daten.get("stil") or "") or None
+            return kaffee, charge, _datum(daten.get("mhd"), "MHD"), _menge(daten.get("menge")), stil
 
         # --- Routen ------------------------------------------------------------
 
@@ -191,15 +193,15 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
                     kaffee = dienst.kaffee_speichern(self._body())
                     return self._json({"ok": True, "kaffee": kaffee.als_dict()})
                 if pfad == "/api/verpackung/zpl":
-                    kaffee, charge, mhd, menge = self._verpackung_auftrag()
-                    return self._json({"ok": True, "zpl": dienst.verpackung_etikett(kaffee, charge, mhd, menge)})
+                    kaffee, charge, mhd, menge, stil = self._verpackung_auftrag()
+                    return self._json({"ok": True, "zpl": dienst.verpackung_etikett(kaffee, charge, mhd, menge, stil)})
                 if pfad == "/api/verpackung/vorschau":
-                    kaffee, charge, mhd, _ = self._verpackung_auftrag()
-                    text = dienst.verpackung_etikett(kaffee, charge, mhd, 1)
+                    kaffee, charge, mhd, _, stil = self._verpackung_auftrag()
+                    text = dienst.verpackung_etikett(kaffee, charge, mhd, 1, stil)
                     return self._senden(200, dienst.vorschau(text, dienst.verpackung_konfig), "image/png")
                 if pfad == "/api/verpackung/drucken":
-                    kaffee, charge, mhd, menge = self._verpackung_auftrag()
-                    meldung = dienst.verpackung_drucken(kaffee, charge, mhd, menge)
+                    kaffee, charge, mhd, menge, stil = self._verpackung_auftrag()
+                    meldung = dienst.verpackung_drucken(kaffee, charge, mhd, menge, stil)
                     return self._json({"ok": True,
                                        "meldung": f"{menge} Verpackungsetikett(en) gedruckt – {meldung}"})
                 if pfad == "/api/verpackung/testdruck":
