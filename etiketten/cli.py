@@ -150,7 +150,7 @@ def cmd_check(dienst: Druckdienst, args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="etiketten", description="Etikettendruck für Citizen-Drucker (ZPL)")
+    parser = argparse.ArgumentParser(prog="etiketten", description="Etiketta – Etikettendruck für Citizen-Drucker (ZPL)")
     parser.add_argument("--config", help="Pfad zur config.toml")
     sub = parser.add_subparsers(dest="befehl")
 

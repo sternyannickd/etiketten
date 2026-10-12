@@ -84,7 +84,7 @@ Die Oberfläche ist ein Web Component. Jede Seite kann sie einbinden:
 |----------|-----------|
 | `api` | Basisadresse der HTTP-API (Standard `/api`) |
 | `kaffee`, `version` | Kaffee und Version, die beim Start gewählt sind |
-| `titel` | Überschrift, Standard „Etikettendruck“. `titel=""` blendet sie aus |
+| `titel` | Überschrift, Standard „Edeka Etiketten“ bzw. „Probeetikett Verpackung“. `titel=""` blendet sie aus |
 
 **Aussehen:** Das Component kapselt seine Stile (Shadow DOM), übernimmt aber
 CSS-Variablen der Seite: `--farbe-flaeche`, `--farbe-text`, `--farbe-text-leise`,

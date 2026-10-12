@@ -7,7 +7,7 @@
 // Attribute:
 //   api      Basisadresse der JSON-API (Standard: /api), siehe docs/API.md
 //   kaffee   Kaffee-ID, die beim Start gewählt wird (optional)
-//   titel    Überschrift (Standard: „Verpackungsetikett“, leer = keine Überschrift)
+//   titel    Überschrift (Standard: „Probeetikett Verpackung“, leer = keine Überschrift)
 //
 // Aussehen über dieselben CSS-Variablen wie <etiketten-app> (etiketten-app.css).
 // Die Kaffees und ihre Info werden in <etiketten-app> im Reiter „Produkte“ gepflegt.
@@ -118,7 +118,7 @@ class VerpackungApp extends HTMLElement {
   connectedCallback() {
     if (this.gestartet) return;
     this.gestartet = true;
-    const titel = this.getAttribute("titel") ?? "Verpackungsetikett";
+    const titel = this.getAttribute("titel") ?? "Probeetikett Verpackung";
     this.$("titel").textContent = titel;
     this.$("titel").hidden = !titel;
     this.verdrahten();
@@ -210,7 +210,7 @@ class VerpackungApp extends HTMLElement {
     info.className = "info" + (k.info ? "" : " info--leer");
     info.textContent = k.info
       ? k.info.split("|").map((z) => z.trim()).join("\n")
-      : "Keine Info hinterlegt. Pflege unter Etikettendruck → Produkte.";
+      : "Keine Info hinterlegt. Pflege unter Edeka Etiketten → Produkte.";
     this.mhdBerechnen();
   }
 

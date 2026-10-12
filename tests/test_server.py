@@ -40,7 +40,7 @@ class ServerTest(unittest.TestCase):
         status, typ, inhalt = self.anfrage("/")
         self.assertEqual(status, 200)
         self.assertIn("text/html", typ)
-        self.assertIn(b"Etikettendruck", inhalt)
+        self.assertIn("Edeka Etiketten – Etiketta".encode(), inhalt)
 
     def test_component_als_modul(self):
         status, typ, inhalt = self.anfrage("/static/etiketten-app.js")

@@ -1,4 +1,4 @@
-# labels – Etikettendruck
+# Etiketta (technisch: labels) – Etikettendruck
 
 Python ≥ 3.11 (Server: 3.12), nur Standardbibliothek, Oberfläche als Web Components
 ohne Build-Schritt. Überblick in `README.md`, Aufbau in `docs/ARCHITEKTUR.md`,

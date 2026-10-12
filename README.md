@@ -1,9 +1,9 @@
-# Etikettendruck
+# Etiketta
 
 Druckt zwei Arten von Etiketten auf Citizen-Etikettendruckern (CL-S521):
 
-- **Produktetikett** (57 × 32 mm): **Titel, EAN-13-Barcode und MHD**.
-- **Verpackungsetikett** (zurzeit 100 × 150 mm): **Name, kurze Info, Röstdatum,
+- **Produktetikett** („Edeka Etiketten“, 57 × 32 mm): **Titel, EAN-13-Barcode und MHD**.
+- **Verpackungsetikett** („Probeetikett Verpackung“, zurzeit 100 × 150 mm): **Name, Info, Röstdatum,
   Charge, MHD und QR-Code**. Seite `/verpackung`, siehe unten.
 
 Beide nutzen dieselbe Produktliste.
@@ -45,7 +45,7 @@ python3 -m etiketten testdruck
 ./start.sh
 ```
 
-Optional legt `scripts/desktop-verknuepfung.sh` einen Eintrag „Etikettendruck“
+Optional legt `scripts/desktop-verknuepfung.sh` einen Eintrag „Etiketta“
 im Startmenü an.
 
 > **Stand 06.10.2026:** Am echten CL-S521 getestet, Druck über USB und
@@ -55,7 +55,7 @@ im Startmenü an.
 
 ## Verpackungsetikett
 
-Oben auf der Seite **Verpackungsetikett** wählen (oder `http://localhost:8077/verpackung`).
+Oben auf der Seite **Probeetikett Verpackung** wählen (oder `http://localhost:8077/verpackung`).
 
 1. **Kaffee** antippen. Darunter steht seine **Info**, die mit aufs Etikett kommt.
    Gepflegt wird sie im Produktetikett unter **Produkte** (Feld „Info für das
@@ -86,7 +86,7 @@ git clone https://github.com/sternyannickd/etiketten.git labels && cd labels && 
 sudo usermod -aG lp $USER        # einmalig, danach ab- und wieder anmelden
 python3 -m etiketten check       # zeigt beide Drucker; der Citizen wird automatisch gefunden
 python3 -m etiketten testdruck --verpackung
-./start.sh                       # dann im Browser „Verpackungsetikett“
+./start.sh                       # dann im Browser „Probeetikett Verpackung“
 ```
 
 Hängen dort noch andere USB-Drucker (z. B. ein Versanddrucker eines anderen

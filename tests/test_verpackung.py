@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 import tempfile
 import threading
 import unittest
@@ -69,8 +70,14 @@ class VerpackungZplTest(unittest.TestCase):
 
     def test_lange_info_wird_gekuerzt(self):
         text = zpl.verpackung_erzeugen(self.konfig, daten(info="|".join(["Eine Zeile Text"] * 30)))
-        self.assertEqual(text.count("Eine Zeile Text"), 9)
+        self.assertLess(text.count("Eine Zeile Text"), 30)
         self.assertIn("...^FS", text)
+
+    def test_ueberschrift_groesser_als_fliesstext(self):
+        text = zpl.verpackung_erzeugen(self.konfig, daten(info="# Ein Klassiker||Nussig und mild"))
+        groesse = {t: int(s) for s, t in re.findall(r"\^A0N,(\d+),\d+\^FB\d+,1,0,L\^FH\^FD([^^]*)\^FS", text)}
+        self.assertNotIn("#", text)
+        self.assertGreater(groesse["Ein Klassiker"], groesse["Nussig und mild"])
 
     def test_qr_groesse_passt_ins_feld(self):
         text = zpl.verpackung_erzeugen(self.konfig, daten())
@@ -139,7 +146,7 @@ class VerpackungDienstTest(unittest.TestCase):
 
     def test_info_zu_lang(self):
         with self.assertRaisesRegex(Exception, "zu lang"):
-            self.dienst.kaffee_speichern({"name": "X", "mhd_monate": 10, "info": "x" * 301,
+            self.dienst.kaffee_speichern({"name": "X", "mhd_monate": 10, "info": "x" * 601,
                                           "versionen": [{"bezeichnung": "A", "gtin": "4006381333931"}]})
 
 

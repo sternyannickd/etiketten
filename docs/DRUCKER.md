@@ -1,6 +1,9 @@
 # Drucker einrichten & Fehlersuche
 
 Referenzgerät: **Citizen CL-S521** (203 dpi), per USB an einem Linux-Mint-Rechner.
+Es gibt zwei solche Drucker: einen für die Produktetiketten (57 × 32 mm) und einen
+für die Verpackungsetiketten (zurzeit 100 × 150 mm, an einem Dual-Boot-PC, unter
+Windows mit Treiber für Versandetiketten genutzt, siehe Abschnitt 3a).
 
 ## 1. Was am Rechner gefunden wurde
 
@@ -44,6 +47,29 @@ und Zebra (ZPL) umschalten, manche erkennen die Sprache auch automatisch.
 | Nichts passiert, oder `^XA…` wird als Text gedruckt | Drucker steht auf Datamax. Emulation auf **Zebra** bzw. **Auto** umstellen: über das Bedienfeld bzw. Einstellmenü des Druckers oder mit dem Citizen-Einstellprogramm. Die genaue Tastenfolge steht in der Bedienungsanleitung des CL-S521 unter „Emulation“ bzw. „Command mode“. Danach Drucker aus- und einschalten und neu testen. |
 | Viele leere Etiketten / Vorschub ohne Ende | Etikettensensor nicht kalibriert. Kalibrierung laut Anleitung durchführen (meist Taste beim Einschalten gedrückt halten). |
 
+### 3a. Automatische Umschaltung (Drucker für Verpackungsetiketten, 12.10.2026)
+
+Der zweite CL-S521 meldete zunächst `MODEL:CL-S521;…;ACTIVE COMMAND:DMI`
+(USB-ID `1d90:202a`). Beim **ersten ZPL-Auftrag hat er sich selbst auf Zebra
+umgestellt**: kurzes Geräusch, Neustart, danach `MODEL:CL-S521Z;COMMAND SET:Z2;
+ACTIVE COMMAND:Z2` (USB-ID `1d90:202b`). Das Programm schickt dafür keinen Befehl,
+die automatische Spracherkennung ist am Drucker eingeschaltet. Folgen:
+
+- Der **erste Auftrag nach dem Umschalten geht verloren** (wird beim Neustart
+  verworfen). Einfach noch einmal drucken.
+- Beim ersten Druck danach kamen **zwei leere Etiketten** (Einmessen nach dem
+  Neustart). Bei allen weiteren Drucken nicht mehr.
+- Linux Mint hält den Drucker wegen der neuen USB-ID für ein neues Gerät und legt
+  automatisch eine CUPS-Warteschlange „CL-S521Z“ an (fragt dafür das
+  Admin-Passwort ab). Sie stört nicht, das Programm schreibt direkt auf
+  `/dev/usb/lp*`. Kann bleiben oder in den Druckereinstellungen gelöscht werden.
+- Vermutlich hat sich der Drucker für die Produktetiketten am 06.10.2026 genauso
+  umgestellt (vorher `DMI`, danach `CL-S521Z`/`Z2`).
+- **Offen:** Ob der Windows-Treiber für den Versanddruck danach noch druckt und ob
+  der Drucker dabei wieder auf Datamax zurückschaltet (dann ginge jeweils der erste
+  Auftrag nach einem Systemwechsel verloren). Unter Windows testen und hier
+  eintragen.
+
 Falls der Drucker sich dauerhaft nicht auf ZPL stellen lässt: Die Architektur
 erlaubt, `zpl.py` durch einen Erzeuger für Datamax (DPL) zu ergänzen. Oberfläche
 und Druckwege bleiben gleich. Das wäre aber ein eigener Arbeitsschritt.
@@ -60,6 +86,19 @@ und Druckwege bleiben gleich. Das wäre aber ein eigener Arbeitsschritt.
   Handels-Mindestgröße).
 - **Schwärzung:** zu blass oder verlaufen → `schwaerzung` (−30…30) unter
   `[drucker]` setzen.
+
+**Verpackungsetikett (100 × 150 mm), 12.10.2026:** Rahmen links 1 mm, rechts 3 mm,
+oben 2 mm, unten 3 mm. Umlaute und Barcode einwandfrei. Ausgeglichen in
+`config.lokal.toml` des Rechners:
+
+```toml
+[verpackung.etikett]
+versatz_x = 1.0
+versatz_y = 0.5
+```
+
+Danach Probeetikett Stern Espresso gedruckt: alles gut lesbar, QR-Code mit dem
+Handy scannbar.
 
 ## 5. Alternative: über CUPS
 
@@ -96,7 +135,8 @@ Dann gehen die Daten an Port 9100, ohne Treiber und auf jedem Betriebssystem gle
 |---------|--------|
 | „Keine Schreibrechte auf /dev/usb/lpX“ | Abschnitt 2 |
 | „Kein USB-Drucker mit Kennung 'CITIZEN' gefunden“ | Drucker an? USB-Kabel? `ls /dev/usb/` |
-| Druck „ok“, aber nichts kommt heraus | Abschnitt 3 (Emulation) |
+| Druck „ok“, aber nichts kommt heraus | Abschnitt 3 (Emulation). Hat der Drucker gerade die Sprache gewechselt (Geräusch, Neustart), einfach noch einmal drucken (3a) |
+| Passwortabfrage „Drucker hinzufügen“ nach dem ersten Druck | Mint hat den umgeschalteten Drucker als neues Gerät erkannt (3a), harmlos |
 | Etikett verschoben | Abschnitt 4, Versatz |
 | Vorschau „nicht verfügbar“ | Kein Internet oder labelary.com nicht erreichbar. Drucken geht trotzdem. Abschalten mit `[vorschau] aktiv = false`. |
 | „Server konnte nicht starten … Address already in use“ | Programm läuft schon (Browser auf http://localhost:8077), oder `--port` ändern |

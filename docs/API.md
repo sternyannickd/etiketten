@@ -43,7 +43,7 @@ Pfade unten gelten relativ dazu.
 | `anzeigename` | Nur in Antworten: `name` mit `|` → Leerzeichen. |
 | `mhd_monate` | Ganzzahl 1–60. Gilt für alle Versionen des Kaffees. |
 | `archiviert` | Archivierte Kaffees werden nicht mehr zum Drucken angeboten. Gelöscht wird nie, damit das Druckprotokoll lesbar bleibt. |
-| `info` | Optional, max. 300 Zeichen. Kurzer Text fürs Verpackungsetikett, `|` = neue Zeile. |
+| `info` | Optional, max. 600 Zeichen. Text fürs Verpackungsetikett, `|` = neue Zeile, `||` = Leerzeile, `#` am Zeilenanfang = Überschrift. |
 | `versionen` | Mindestens eine. |
 | `id` (Version) | Wie die Kaffee-ID, aus `bezeichnung`, eindeutig innerhalb des Kaffees. |
 | `bezeichnung` | Pflicht, frei wählbar (z. B. „Edeka“, „Rewe 1 kg“). |

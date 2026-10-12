@@ -7,7 +7,7 @@
 //   api      Basisadresse der JSON-API (Standard: /api), siehe docs/API.md
 //   kaffee   Kaffee-ID, die beim Start gewählt wird (optional)
 //   version  Versions-ID dazu (optional)
-//   titel    Überschrift (Standard: „Etikettendruck“, leer = keine Überschrift)
+//   titel    Überschrift (Standard: „Edeka Etiketten“, leer = keine Überschrift)
 //
 // Das Aussehen passt sich über CSS-Variablen der einbindenden Seite an
 // (--farbe-akzent, --schrift, --radius …), siehe etiketten-app.css.
@@ -105,9 +105,9 @@ const VORLAGE = `
             <input id="f-monate" type="number" min="1" max="60" inputmode="numeric">
           </label>
           <label class="breit"><span>Info für das Verpackungsetikett (optional)</span>
-            <textarea id="f-info" rows="3" maxlength="300"
+            <textarea id="f-info" rows="5" maxlength="600"
               placeholder="z. B. Schokolade, Haselnuss|Huila, 1.700 m|Gewaschen"></textarea>
-            <small>Kurz halten. „|“ beginnt eine neue Zeile.</small>
+            <small>„|“ beginnt eine neue Zeile, „||“ lässt eine Zeile frei, „#“ am Zeilenanfang macht sie zur Überschrift.</small>
           </label>
         </div>
         <label id="f-archiv-zeile" class="haken">
@@ -167,7 +167,7 @@ class EtikettenApp extends HTMLElement {
   connectedCallback() {
     if (this.gestartet) return;  // beim Verschieben im DOM nicht doppelt starten
     this.gestartet = true;
-    const titel = this.getAttribute("titel") ?? "Etikettendruck";
+    const titel = this.getAttribute("titel") ?? "Edeka Etiketten";
     this.$("titel").textContent = titel;
     this.$("titel").hidden = !titel;
     this.verdrahten();

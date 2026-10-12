@@ -190,7 +190,7 @@ def erzeugen(konfig: Konfig, daten: EtikettDaten) -> str:
 @dataclass(frozen=True)
 class VerpackungsDaten:
     name: str        # "|" = erzwungener Zeilenumbruch
-    info: str        # kurzer Text, "|" = neue Zeile, darf leer sein
+    info: str        # "|" = neue Zeile, "#" am Zeilenanfang = Überschrift, darf leer sein
     charge: str      # bereits geprüft, z. B. "Rö261012-01"
     roestdatum: date
     mhd: date
@@ -257,25 +257,33 @@ def verpackung_erzeugen(konfig: Konfig, daten: VerpackungsDaten) -> str:
             staerke = max(1, lay.punkte(linie["staerke"]))
             z.append(f"^FO{lx},{ly}^GB{t_breite},{staerke},{staerke}^FS")
 
-    # Info: links bündig, selbst umbrochen, überzählige Zeilen werden gekürzt
+    # Info: links bündig, selbst umbrochen, überzählige Zeilen werden gekürzt.
+    # "#" am Zeilenanfang setzt die Zeile größer als Überschrift.
     info = lo["info"]
     if daten.info.strip():
-        i_breite, i_schrift = lay.punkte(info["breite"]), lay.punkte(info["schrift"])
-        i_abstand = round(i_schrift * 1.3)
-        max_zeilen = max(1, lay.punkte(info["hoehe"]) // i_abstand)
-        zeilen = []
+        i_breite, i_hoehe = lay.punkte(info["breite"]), lay.punkte(info["hoehe"])
+        i_schrift = lay.punkte(info["schrift"])
+        u_schrift = lay.punkte(info.get("ueberschrift_schrift", info["schrift"]))
+        zeilen = []  # (Schrift, Text); leerer Text = Leerzeile
         for absatz in daten.info.split("|"):
-            zeilen += _umbrechen(absatz.strip(), i_breite, i_schrift) if absatz.strip() else [""]
-        if len(zeilen) > max_zeilen:
-            zeilen = zeilen[:max_zeilen]
-            letzte = zeilen[-1]
-            while letzte and textbreite(letzte + "...", i_schrift) > i_breite:
+            absatz = absatz.strip()
+            schrift = i_schrift
+            if absatz.startswith("#"):
+                absatz, schrift = absatz.lstrip("#").strip(), u_schrift
+            zeilen += [(schrift, t) for t in _umbrechen(absatz, i_breite, schrift)] if absatz else [(i_schrift, "")]
+        hoehen = [round(s * 1.3) for s, _ in zeilen]
+        if sum(hoehen) > i_hoehe:
+            while len(zeilen) > 1 and sum(hoehen[:len(zeilen)]) > i_hoehe:
+                zeilen.pop()
+            schrift, letzte = zeilen[-1]
+            while letzte and textbreite(letzte + "...", schrift) > i_breite:
                 letzte = letzte[:-1]
-            zeilen[-1] = letzte.rstrip() + "..."
+            zeilen[-1] = (schrift, letzte.rstrip() + "...")
         ix, iy = lay.pos(info["x"], info["y"])
-        for n, zeile in enumerate(zeilen):
+        for (schrift, zeile), hoehe in zip(zeilen, hoehen):
             if zeile:
-                z.append(_zeile(ix, iy + n * i_abstand, i_breite, i_schrift, zeile))
+                z.append(_zeile(ix, iy, i_breite, schrift, zeile))
+            iy += hoehe
 
     # Daten links unten: Beschriftung klein, Wert groß darunter
     d = lo["daten"]
@@ -345,8 +353,8 @@ def testetikett(konfig: Konfig) -> str:
     for i, zeile in enumerate(zeilen):
         z.append(f"^FO{x0 + rand + 10},{y0 + rand + 8 + i * round(groesse * 1.15)}"
                  f"^A0N,{groesse},{groesse}^FH^FD{feldtext(zeile)}^FS")
-    barcode = konfig["layout"]["barcode"]
-    modul = int(barcode["modul"])
+    # Das Verpackungsetikett hat keinen Barcode im Layout, dann gilt der Standard
+    modul = int(konfig["layout"].get("barcode", {}).get("modul", 3))
     z.append(f"^FO{x0 + rand + 10 + VORZIFFER_MODULE * modul},{y0 + lay.punkte(17)}^BY{modul}"
              f"^BEN,{lay.punkte(8)},Y,N^FD400638133393^FS")
     z.append("^PQ1,0,1,Y")

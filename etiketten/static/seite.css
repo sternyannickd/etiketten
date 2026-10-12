@@ -4,8 +4,12 @@ body { margin: 0; padding: 16px; background: #f4f1ec; }
 @media (max-width: 800px) { body { padding: 12px; } }
 
 .arten {
-  display: flex; gap: 4px; max-width: 1200px; margin: 0 auto 12px;
+  display: flex; flex-wrap: wrap; gap: 4px; max-width: 1200px; margin: 0 auto 12px;
   font: 15px system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.arten .app-name {
+  font-weight: 700; font-size: 18px; margin-right: 12px; align-self: center;
+  color: var(--farbe-text, #2b2420);
 }
 .arten a {
   padding: 6px 14px; border-radius: 999px; text-decoration: none;

@@ -28,7 +28,7 @@ from pathlib import Path
 FORMAT = 1
 LAYOUTS = ("standard",)   # später weitere Etikett-Designs
 MHD_MONATE = (1, 60)
-INFO_MAX = 300
+INFO_MAX = 600
 UMLAUTE = str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"})
 
 
@@ -85,7 +85,7 @@ class Kaffee:
     mhd_monate: int
     versionen: tuple[Version, ...]
     archiviert: bool = False
-    info: str = ""       # kurzer Text fürs Verpackungsetikett, "|" = neue Zeile
+    info: str = ""       # Text fürs Verpackungsetikett, "|" = neue Zeile, "#" = Überschrift
 
     @property
     def anzeigename(self) -> str:

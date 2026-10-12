@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verpackungsetikett</title>
+  <title>Probeetikett Verpackung – Etiketta</title>
   <link rel="stylesheet" href="/static/seite.css">
   <!--rahmen-->
   <script type="module" src="/static/verpackung-app.js"></script>
@@ -11,8 +11,9 @@
 <body>
   <!--entwicklermodus-->
   <nav class="arten" aria-label="Etikettenart">
-    <a href="/">Produktetikett</a>
-    <a href="/verpackung" aria-current="page">Verpackungsetikett</a>
+    <span class="app-name">Etiketta</span>
+    <a href="/">Edeka Etiketten</a>
+    <a href="/verpackung" aria-current="page">Probeetikett Verpackung</a>
   </nav>
   <verpackung-app api="/api"></verpackung-app>
   <script type="module">

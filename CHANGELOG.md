@@ -2,6 +2,20 @@
 
 ## Unveröffentlicht
 
+- Name der App: **Etiketta**. Kopfzeile der lokalen Seiten mit „Edeka Etiketten“ (`/`)
+  und „Probeetikett Verpackung“ (`/verpackung`).
+- Erster Druck auf dem Drucker für Verpackungsetiketten (100 × 150 mm): Testetikett
+  und Probeetikett Stern Espresso. Der Drucker schaltet beim ersten ZPL-Auftrag selbst
+  von Datamax auf Zebra um, siehe `docs/DRUCKER.md` Abschnitt 3a.
+- Fehler behoben: `testdruck --verpackung` brach ab (kein Barcode im Layout).
+- Info fürs Verpackungsetikett: bis 600 Zeichen, `#` am Zeilenanfang = Überschrift
+  (`ueberschrift_schrift`), `||` = Leerzeile. Fließtext jetzt 3,4 mm.
+- Info für Stern Espresso eingetragen.
+- `qr_adresse` jetzt `https://stern-kaffee.de`.
+- Entwürfe für ein ansprechenderes Verpackungsetikett in `docs/entwuerfe/`.
+- `.claude/settings.json`: war kein gültiges JSON (Windows-Pfad). Jetzt `../tosto`,
+  Hook läuft unter Linux (`python3`) und Windows (`python`).
+
 - **Verpackungsetikett** als zweite Etikettenart (Seite `/verpackung`, Component
   `<verpackung-app>`): Name, Info, Röstdatum, Charge (`RöJJMMTT-NN`), MHD und QR-Code,
   zurzeit 100 × 150 mm. Eigene Größe, eigenes Layout und eigener Drucker unter

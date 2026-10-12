@@ -1,7 +1,7 @@
 {
   "permissions": {
     "additionalDirectories": [
-      "C:\Users\yannickdengler\Documents\claude projects\tosto"
+      "../tosto"
     ]
   },
   "hooks": {
@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/schnittstelle.py\""
+            "command": "if python3 -c '' 2>/dev/null; then P=python3; else P=python; fi; \"$P\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/schnittstelle.py\""
           }
         ]
       }

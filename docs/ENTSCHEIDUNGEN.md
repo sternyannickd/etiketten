@@ -82,16 +82,22 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
 7. ~~Wer baut die Server-Seite (PHP)?~~ Entfällt: labels läuft selbst als Python-Dienst auf dem Server.
 8. **Notbetrieb abgleichen:** Wie die lokale Produktliste vom Server aktualisiert wird
    (z. B. beim Start holen, dann `produkte_bearbeiten = false`).
-9. **App-Name** fehlt noch.
+9. ~~App-Name~~: **Etiketta** (12.10.2026). Seiten „Edeka Etiketten“ und „Probeetikett Verpackung“. Technische Namen (Paket `etiketten`, `<etiketten-app>`, API) bleiben.
 
 **Offen für das Verpackungsetikett:**
 
-10. **QR-Adresse** prüfen (`qr_adresse`, zurzeit `https://www.stern-kaffee.de`).
+10. ~~QR-Adresse~~: `https://stern-kaffee.de`, mit dem Handy getestet (12.10.2026).
 11. **Chargen** pro Kaffee zur Auswahl anbieten statt Eingabefeld. Woher kommen sie
     (Röstprotokoll, Artisan, roast-archive)?
 12. **Pflichtangaben** für verkaufte Ware (Nettofüllmenge, Anschrift, ggf. Los = Charge)
     und **endgültige Etikettengröße** mit dem künftigen Drucker.
-13. **Info** pro Kaffee eintragen (Reiter Produkte).
+13. **Info** pro Kaffee eintragen (Reiter Produkte). Stern Espresso hat sie seit 12.10.2026
+    (Überschrift mit `#`, Fließtext 3,4 mm, passt ohne Kürzen).
+14. **Aussehen:** Zwei Entwürfe in `docs/entwuerfe/` (A: Rahmen und Stern-Ornament,
+    B: schwarzes Band). Auswahl steht aus. Eigene Schrift nur als Grafik möglich,
+    der Drucker hat nur eine skalierbare Schrift.
+15. **Windows-Versanddruck** nach der automatischen Umschaltung auf ZPL prüfen
+    (`docs/DRUCKER.md` Abschnitt 3a).
 
 ## Für künftige Versionen / das Etikettenkonzept
 

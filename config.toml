@@ -86,7 +86,7 @@ datumsformat = "%d.%m.%Y"
 [verpackung]
 aktiv = true
 protokoll = "var/verpackungsprotokoll.csv"
-qr_adresse = "https://www.stern-kaffee.de"   # wohin der QR-Code führt (bitte prüfen)
+qr_adresse = "https://stern-kaffee.de"       # wohin der QR-Code führt
 qr_text = ""                                  # Text unter dem QR-Code, leer = Adresse ohne https://
 
 # Drucker: alles aus [drucker] gilt, außer was hier steht. Hängt der Drucker für
@@ -120,7 +120,8 @@ x = 6.0
 y = 41.0
 breite = 88.0
 hoehe = 50.0
-schrift = 4.0
+schrift = 3.4                 # Fließtext
+ueberschrift_schrift = 4.6    # Zeilen, die mit "#" beginnen
 
 [verpackung.layout.linie_unten]
 y = 96.0

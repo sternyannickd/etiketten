@@ -92,6 +92,10 @@ class TestetikettTest(unittest.TestCase):
         self.assertIn("Größe", text)
         self.assertIn("^GB", text)
 
+    def test_verpackung_ohne_barcode_im_layout(self):
+        text = zpl.testetikett(test_konfig().fuer_verpackung())
+        self.assertIn("^PW799", text)
+
 
 if __name__ == "__main__":
     unittest.main()

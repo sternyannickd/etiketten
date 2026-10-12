@@ -254,7 +254,7 @@ def starten(dienst: Druckdienst, host: str | None = None, port: int | None = Non
             "Läuft das Programm schon? Sonst anderen Port mit --port wählen."
         ) from None
     anzeige = "localhost" if host in ("127.0.0.1", "0.0.0.0") else host
-    print(f"Etikettendruck läuft: http://{anzeige}:{port}   (beenden mit Strg+C)", flush=True)
+    print(f"Etiketta läuft: http://{anzeige}:{port}   (beenden mit Strg+C)", flush=True)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
