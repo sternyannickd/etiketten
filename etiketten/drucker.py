@@ -198,5 +198,5 @@ def transport(konfig: Konfig):
     if art == "tcp":
         return TcpTransport(d.get("tcp_host", ""), d.get("tcp_port", 9100))
     if art == "datei":
-        return DateiTransport(konfig.pfad("var/ausgabe"))
+        return DateiTransport(konfig.pfad(d.get("datei_ordner") or "var/ausgabe"))
     raise DruckFehler(f"Unbekannter Druckweg {art!r} (erlaubt: usb, cups, tcp, datei)")

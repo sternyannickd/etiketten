@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verpackungsetikett</title>
+  <link rel="stylesheet" href="/static/seite.css">
+  <!--rahmen-->
+  <script type="module" src="/static/verpackung-app.js"></script>
+</head>
+<body>
+  <!--entwicklermodus-->
+  <nav class="arten" aria-label="Etikettenart">
+    <a href="/">Produktetikett</a>
+    <a href="/verpackung" aria-current="page">Verpackungsetikett</a>
+  </nav>
+  <verpackung-app api="/api"></verpackung-app>
+  <script type="module">
+    // Direktlink, z. B. http://localhost:8077/verpackung?kaffee=kolumbien
+    const kaffee = new URLSearchParams(location.search).get("kaffee");
+    if (kaffee) document.querySelector("verpackung-app").setAttribute("kaffee", kaffee);
+  </script>
+</body>
+</html>

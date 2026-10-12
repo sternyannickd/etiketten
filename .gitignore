@@ -6,3 +6,4 @@ var/
 .pytest_cache/
 .vscode/
 .idea/
+config.lokal.toml

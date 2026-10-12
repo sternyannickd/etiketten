@@ -4,13 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Etikettendruck</title>
-  <style>
-    body { margin: 0; padding: 16px; background: #f4f1ec; }
-    @media (max-width: 800px) { body { padding: 12px; } }
-  </style>
+  <link rel="stylesheet" href="/static/seite.css">
+  <!--rahmen-->
   <script type="module" src="/static/etiketten-app.js"></script>
 </head>
 <body>
+  <!--entwicklermodus-->
+  <nav class="arten" aria-label="Etikettenart">
+    <a href="/" aria-current="page">Produktetikett</a>
+    <a href="/verpackung">Verpackungsetikett</a>
+  </nav>
   <etiketten-app api="/api"></etiketten-app>
   <script type="module">
     // Direktlink, z. B. http://localhost:8077/?kaffee=kolumbien&version=edeka

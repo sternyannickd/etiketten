@@ -122,10 +122,11 @@ h2 { font-size: 1.05rem; margin: 0 0 12px; display: flex; align-items: center; g
 
 .felder { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--leise); }
-input {
+input, textarea {
   font: inherit; color: var(--text);
   padding: 8px 10px; border: 1px solid var(--linie); border-radius: var(--r); background: var(--flaeche);
 }
+textarea { resize: vertical; width: 100%; }
 .marke {
   display: inline-block; font-size: .75rem; padding: 0 6px; border-radius: 4px;
   background: var(--linie); color: var(--text);

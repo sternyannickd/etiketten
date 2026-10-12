@@ -26,11 +26,14 @@ Grundlage: [`fragen/01-druckprogramm.md`](../fragen/01-druckprogramm.md)
 | D5 | Drucker | einer. |
 | E1 | Technik | Python ≥ 3.11, nur Standardbibliothek, Oberfläche ohne Build-Schritt. |
 | E2 | Vorgehen | Alles auf einmal gebaut, Test direkt am Drucker. |
-| F1 | Website | Die App soll auf der Website **TOSTO** (Plesk-Subdomain, PHP, Login) laufen und später auch auf der Website des Chefs. Dafür ist die Oberfläche ein Web Component mit API-Adresse als Attribut und Design über CSS-Variablen (08.10.2026). |
-| F2 | Daten | Die Daten liegen künftig auf dem Server (Plesk, JSON-Dateien außerhalb von `httpdocs`). Der Rechner am Drucker bekommt Name und GTIN mit jedem Auftrag. |
+| F1 | Portal | Die App läuft im Portal **tosto** und soll später auch in die Website des Chefs passen. Dafür ist die Oberfläche ein Web Component mit API-Adresse als Attribut und Design über CSS-Variablen (08.10.2026). Seit 12.10.2026: tosto läuft auf dem **Firmenserver** (AlmaLinux, Podman), labels dort als **Python-Dienst** hinter tosto, Drucker 1 per USB am Server. Kein PHP mehr. Vorgaben: `../tosto/KONVENTIONEN.md`, Austausch über `TOSTO.md`. |
+| F2 | Daten | Die Daten liegen auf dem Firmenserver (JSON-Dateien im Datenordner von tosto). |
 | F3 | Produkte | Kaffee (Name, Haltbarkeit **pro Kaffee**) mit beliebig vielen **frei benennbaren Versionen** (Bezeichnung, GTIN, Layout). Pflege im Browser. Archivieren statt Löschen. Jede GTIN nur einmal. |
 | F4 | Notbetrieb | Die lokale Python-Oberfläche bleibt erhalten, falls Internet oder Website ausfallen, und wird mit denselben Änderungen weiterentwickelt. Beide Server erfüllen dieselbe API ([API.md](API.md)). |
-| F5 | Drucken über die Website | Druckwarteschlange auf dem Server, am Drucker ein Agent, der Aufträge per ausgehendem HTTPS abholt, das ZPL selbst erzeugt und Lebenszeichen + Druckerstatus für eine Statusanzeige meldet. Noch nicht gebaut. |
+| F5 | Drucken über die Website | Drucker 1 hängt am Server, labels druckt dort direkt (keine Warteschlange). Nur für Drucker an Client-PCs (Verpackung, F7) kommt ein Druckagent, Vorschlag in `../tosto/schnittstelle/labels.md`. Noch nicht gebaut. |
+| F6 | Entwicklermodus | Es gibt immer eine lokal startbare Entwicklerversion: `python -m etiketten dev`, Testdaten, druckt in Dateien, Design aus dem tosto-Rahmen (12.10.2026). |
+| F7 | Verpackungsetikett | Zweite Etikettenart **in labels** (gleiche Produktliste), eigene Seite und eigenes Component `<verpackung-app>`. Inhalt: Name, Info (pro Kaffee), Röstdatum, Charge, MHD, QR-Code. Zurzeit 100 × 150 mm (Rolle des Versanddruckers), Layout in `config.toml` anpassbar. Drucker: ebenfalls Citizen CL-S521, an einem Client-PC mit Linux Mint (12.10.2026). |
+| F8 | Charge | Format `RöJJMMTT-NN`, das Röstdatum steckt darin. Im Prototyp ein Eingabefeld, später Auswahl der verfügbaren Chargen des Kaffees. MHD = Röstdatum + Haltbarkeit des Kaffees. QR-Code führt auf eine feste Adresse (12.10.2026). |
 
 Zusätzlich entschieden (ohne Rückfrage, leicht änderbar):
 
@@ -74,13 +77,21 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
    („Mindesthaltbarkeit:“ + Datum, `einzeilig = false`) und gepunktete Trennlinie.
    Das aktuelle einzeilige `MHD: TT.MM.JJJJ` wurde beim Test für gut befunden.
 
-**Offen für TOSTO:**
+**Offen für tosto:**
 
-7. **Wer baut die Server-Seite (PHP)?** Diese App (dann gehört der PHP-Code in dieses
-   Repo) oder das Portal TOSTO. Wird im TOSTO-Projekt geklärt.
+7. ~~Wer baut die Server-Seite (PHP)?~~ Entfällt: labels läuft selbst als Python-Dienst auf dem Server.
 8. **Notbetrieb abgleichen:** Wie die lokale Produktliste vom Server aktualisiert wird
    (z. B. beim Start holen, dann `produkte_bearbeiten = false`).
 9. **App-Name** fehlt noch.
+
+**Offen für das Verpackungsetikett:**
+
+10. **QR-Adresse** prüfen (`qr_adresse`, zurzeit `https://www.stern-kaffee.de`).
+11. **Chargen** pro Kaffee zur Auswahl anbieten statt Eingabefeld. Woher kommen sie
+    (Röstprotokoll, Artisan, roast-archive)?
+12. **Pflichtangaben** für verkaufte Ware (Nettofüllmenge, Anschrift, ggf. Los = Charge)
+    und **endgültige Etikettengröße** mit dem künftigen Drucker.
+13. **Info** pro Kaffee eintragen (Reiter Produkte).
 
 ## Für künftige Versionen / das Etikettenkonzept
 

@@ -2,6 +2,18 @@
 
 ## Unveröffentlicht
 
+- **Verpackungsetikett** als zweite Etikettenart (Seite `/verpackung`, Component
+  `<verpackung-app>`): Name, Info, Röstdatum, Charge (`RöJJMMTT-NN`), MHD und QR-Code,
+  zurzeit 100 × 150 mm. Eigene Größe, eigenes Layout und eigener Drucker unter
+  `[verpackung]` in `config.toml`. API unter `/api/verpackung/…`, Kommandozeile
+  `verpackung` und `testdruck --verpackung`, eigenes Protokoll.
+- Kaffee hat ein optionales Feld **`info`** (Reiter Produkte).
+- **Entwicklermodus** `python -m etiketten dev`: Testdaten in `var/dev/`, druckt in
+  Dateien, übernimmt das Design aus `../tosto/rahmen/theme.css`.
+- `config.lokal.toml` für Einstellungen nur eines Rechners (nicht im Git).
+- `GET /api/status` liefert zusätzlich `ok` und `meldung` (Konvention von tosto).
+- Oberfläche schickt das CSRF-Token der einbindenden Seite mit und meldet
+  abgelaufene Sitzungen (401) verständlich.
 - Oberfläche ist jetzt ein Web Component `<etiketten-app>` und lässt sich in andere
   Seiten einbinden (Vorbereitung für das Portal TOSTO). Attribute `api`, `produkt`,
   `titel`. Aussehen über CSS-Variablen (`--farbe-akzent`, `--schrift`, `--radius` …).

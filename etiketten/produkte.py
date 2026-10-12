@@ -5,12 +5,14 @@ Aufbau von data/produkte.json:
     {"format": 1,
      "kaffees": [
        {"id": "kolumbien", "name": "Kolumbien", "mhd_monate": 12, "archiviert": false,
+        "info": "Schokolade, Nuss|Hochland Huila",
         "versionen": [
           {"id": "edeka", "bezeichnung": "Edeka", "gtin": "2064000002134",
            "layout": "standard", "archiviert": false}]}]}
 
 Ein Kaffee hat eine Haltbarkeit und beliebig viele Versionen, z. B. eine für
-Edeka und eine für Rewe. Gelöscht wird nichts, nur archiviert, damit das
+Edeka und eine für Rewe. `info` ist ein kurzer, optionaler Text für das
+Verpackungsetikett („|“ = neue Zeile). Gelöscht wird nichts, nur archiviert, damit das
 Druckprotokoll lesbar bleibt.
 """
 
@@ -26,6 +28,7 @@ from pathlib import Path
 FORMAT = 1
 LAYOUTS = ("standard",)   # später weitere Etikett-Designs
 MHD_MONATE = (1, 60)
+INFO_MAX = 300
 UMLAUTE = str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"})
 
 
@@ -82,6 +85,7 @@ class Kaffee:
     mhd_monate: int
     versionen: tuple[Version, ...]
     archiviert: bool = False
+    info: str = ""       # kurzer Text fürs Verpackungsetikett, "|" = neue Zeile
 
     @property
     def anzeigename(self) -> str:
@@ -110,7 +114,7 @@ class Kaffee:
         versionen = self.versionen if mit_archiv else self.aktive_versionen
         return {"id": self.id, "name": self.name, "anzeigename": self.anzeigename,
                 "mhd_monate": self.mhd_monate, "archiviert": self.archiviert,
-                "versionen": [v.als_dict() for v in versionen]}
+                "info": self.info, "versionen": [v.als_dict() for v in versionen]}
 
 
 # --- Eingaben prüfen ------------------------------------------------------------
@@ -156,6 +160,13 @@ def kaffee_aus_dict(daten, ort: str = "Kaffee") -> Kaffee:
         fehler.append(f"{ort}: Haltbarkeit muss {MHD_MONATE[0]}–{MHD_MONATE[1]} Monate sein, "
                       f"ist {daten.get('mhd_monate')!r}")
         monate = 0
+    info = daten.get("info") or ""
+    if not isinstance(info, str):
+        fehler.append(f"{ort}: info muss Text sein")
+        info = ""
+    info = info.strip()
+    if len(info) > INFO_MAX:
+        fehler.append(f"{ort}: Info ist zu lang ({len(info)} Zeichen, höchstens {INFO_MAX})")
     roh = daten.get("versionen")
     if not isinstance(roh, list) or not roh:
         fehler.append(f"{ort}: braucht mindestens eine Version")
@@ -164,7 +175,7 @@ def kaffee_aus_dict(daten, ort: str = "Kaffee") -> Kaffee:
     if fehler:
         raise ProduktFehler("\n".join(fehler))
     return Kaffee(str(daten.get("id") or "").strip(), name, monate,
-                  tuple(v for v in versionen if v), bool(daten.get("archiviert")))
+                  tuple(v for v in versionen if v), bool(daten.get("archiviert")), info)
 
 
 def ids_vergeben(kaffee: Kaffee, vergebene_kaffee_ids: set[str]) -> Kaffee:

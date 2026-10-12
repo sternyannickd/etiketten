@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 import sys
 import threading
 import webbrowser
 from datetime import date, datetime
+from pathlib import Path
 
 from . import config, drucker, server
 from .dienst import Druckdienst, EingabeFehler, VorschauFehler
@@ -27,6 +30,40 @@ def cmd_start(dienst: Druckdienst, args) -> int:
         port = args.port or dienst.konfig["server"]["port"]
         threading.Timer(0.8, webbrowser.open, [f"http://localhost:{port}"]).start()
     server.starten(dienst, args.host, args.port)
+    return 0
+
+
+def entwicklermodus(konfig: config.Konfig, echter_drucker: bool = False) -> Path:
+    """Konfiguration auf Testdaten in var/dev/ umstellen und (ohne echter_drucker) in
+    Dateien drucken. Die echte Produktliste wird beim ersten Start nur kopiert."""
+    ordner = konfig.pfad("var/dev")
+    ordner.mkdir(parents=True, exist_ok=True)
+    produkte = ordner / "produkte.json"
+    if not produkte.exists():
+        shutil.copyfile(konfig.produkte_pfad, produkte)
+    d = konfig.daten
+    d["produkte"] = str(produkte)
+    d["protokoll"] = str(ordner / "druckprotokoll.csv")
+    d["verpackung"]["protokoll"] = str(ordner / "verpackungsprotokoll.csv")
+    if not echter_drucker:
+        for drucker_daten in (d["drucker"], d["verpackung"].setdefault("drucker", {})):
+            drucker_daten["transport"] = "datei"
+            drucker_daten["datei_ordner"] = str(ordner / "ausgabe")
+    return ordner
+
+
+def cmd_dev(dienst: Druckdienst, args) -> int:
+    ordner = entwicklermodus(dienst.konfig, args.drucker)
+    rahmen = Path(args.rahmen or os.environ.get("TOSTO_RAHMEN") or config.PROJEKT_DIR.parent / "tosto" / "rahmen")
+    if not (rahmen / "theme.css").is_file():
+        print(f"Hinweis: kein tosto-Rahmen in {rahmen} gefunden, die App zeigt ihr eigenes Design.")
+        rahmen = None
+    print(f"Entwicklermodus: Testdaten in {ordner}"
+          + ("" if args.drucker else ", gedruckt wird in Dateien (ausgabe/)"))
+    port = args.port or dienst.konfig["server"]["port"]
+    if args.browser:
+        threading.Timer(0.8, webbrowser.open, [f"http://localhost:{port}"]).start()
+    server.starten(dienst, "127.0.0.1", port, rahmen, entwickler=True)
     return 0
 
 
@@ -51,7 +88,15 @@ def cmd_drucken(dienst: Druckdienst, args) -> int:
 
 
 def cmd_testdruck(dienst: Druckdienst, args) -> int:
-    print(dienst.testdruck())
+    print(dienst.verpackung_testdruck() if args.verpackung else dienst.testdruck())
+    return 0
+
+
+def cmd_verpackung(dienst: Druckdienst, args) -> int:
+    if args.zpl:
+        sys.stdout.write(dienst.verpackung_etikett(args.kaffee, args.charge, args.mhd, args.menge))
+    else:
+        print(dienst.verpackung_drucken(args.kaffee, args.charge, args.mhd, args.menge))
     return 0
 
 
@@ -79,6 +124,10 @@ def cmd_check(dienst: Druckdienst, args) -> int:
     print(f"Drucker (Druckweg: {k['drucker']['transport']})")
     status = dienst.status()
     zeile(status.ok, status.meldung, status.hinweis)
+    if dienst.verpackung_aktiv:
+        print(f"Drucker für Verpackungsetiketten (Druckweg: {dienst.verpackung_konfig['drucker']['transport']})")
+        status = dienst.verpackung_status()
+        zeile(status.ok, status.meldung, status.hinweis)
     gefunden = drucker.usb_geraete()
     for pfad, kennung in gefunden:
         print(f"      USB: {pfad}  {kennung or '(keine Kennung)'}")
@@ -116,7 +165,24 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--alle", action="store_true", help="auch archivierte zeigen")
     p.set_defaults(func=cmd_produkte)
     sub.add_parser("check", help="Konfiguration, Produkte und Drucker prüfen").set_defaults(func=cmd_check)
-    sub.add_parser("testdruck", help="Kalibrier-/Testetikett drucken").set_defaults(func=cmd_testdruck)
+    p = sub.add_parser("testdruck", help="Kalibrier-/Testetikett drucken")
+    p.add_argument("--verpackung", action="store_true", help="in der Größe des Verpackungsetiketts")
+    p.set_defaults(func=cmd_testdruck)
+
+    p = sub.add_parser("dev", help="Entwicklermodus: Testdaten, druckt in Dateien, tosto-Design")
+    p.add_argument("--port", type=int)
+    p.add_argument("--drucker", action="store_true", help="doch auf den echten Drucker drucken")
+    p.add_argument("--rahmen", help="Ordner mit dem tosto-Rahmen (Standard: ../tosto/rahmen)")
+    p.add_argument("--kein-browser", dest="browser", action="store_false")
+    p.set_defaults(func=cmd_dev)
+
+    p = sub.add_parser("verpackung", help="Verpackungsetikett drucken (Name, Info, Charge, QR-Code)")
+    p.add_argument("kaffee", help="Kaffee-ID (siehe 'produkte')")
+    p.add_argument("--charge", required=True, help="Chargennummer, z. B. Rö261012-01")
+    p.add_argument("--mhd", type=_datum, help="MHD (Standard: Röstdatum + Haltbarkeit)")
+    p.add_argument("--menge", type=int, default=1)
+    p.add_argument("--zpl", action="store_true", help="nur ZPL ausgeben, nicht drucken")
+    p.set_defaults(func=cmd_verpackung)
 
     for name, func, hilfe in (("zpl", cmd_zpl, "ZPL ausgeben, ohne zu drucken"),
                               ("drucken", cmd_drucken, "Etiketten drucken")):

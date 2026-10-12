@@ -21,12 +21,18 @@ ZPL-Text, der sowohl in die Vorschau als auch zum Drucker geht. Der Druckweg
 | `config.py` | `config.toml` laden, mit Standardwerten zusammenführen | – |
 | `produkte.py` | Kaffees mit Versionen: JSON lesen, prüfen (EAN-13, GTIN eindeutig), atomar speichern | – |
 | `mhd.py` | Datum + Monate | – |
-| `zpl.py` | Layout (mm) → ZPL (Druckpunkte), Titel umbrechen und Schrift anpassen, Testetikett | config |
+| `zpl.py` | Layout (mm) → ZPL (Druckpunkte), Titel umbrechen und Schrift anpassen, Testetikett; Produkt- und Verpackungsetikett | config |
+| `charge.py` | Chargennummer `RöJJMMTT-NN` prüfen, Röstdatum daraus | – |
 | `drucker.py` | Druckwege `usb`, `cups`, `tcp`, `datei`, jeweils mit `pruefen()` und `senden(bytes)` | config |
 | `dienst.py` | `Druckdienst`: der Ablauf, also Kaffee und Version suchen, Produkte ändern, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau | alle oben |
 | `server.py` | HTTP: Oberfläche und JSON-API | dienst |
 | `cli.py` | Kommandozeile | dienst, server |
-| `static/` | Web Component `<etiketten-app>` ohne Build-Schritt, `index.html` bindet es ein | API |
+| `static/` | Web Components `<etiketten-app>` und `<verpackung-app>` ohne Build-Schritt, `gemeinsam.js`, Seiten `index.html` und `verpackung.html` | API |
+
+**Zwei Etikettenarten:** `Konfig.fuer_verpackung()` liefert dieselbe Konfiguration mit
+Größe, Layout, Drucker und Protokoll aus `[verpackung]`. Damit laufen Druckwege,
+Vorschau und Testetikett für beide Arten unverändert. Neue Arten folgen demselben
+Muster.
 
 Oberfläche, Kommandozeile und ein späteres Enterprise-System sind gleichwertige
 **Aufrufer des `Druckdienst`**. Keine Drucklogik steckt in der Oberfläche.
@@ -117,9 +123,7 @@ durch eine andere Quelle ersetzt. Alles andere bleibt.
 **Neuer Druckweg** (z. B. Windows-Rohdruck): in `drucker.py` eine Klasse mit
 `pruefen()`/`senden()` ergänzen und in `transport()` eintragen.
 
-**Komplexere Etiketten** (Konzept, `fragen/02-etikettenkonzept.md`): ein
-weiterer Erzeuger neben `zpl.erzeugen()`, z. B. mit Röstdatum, Herkunft und
-QR-Code (`^BQ`). Die Version wählt das Design über ihr Feld `layout`, der Kaffee bekommt dafür weitere Felder.
+**Komplexere Etiketten:** umgesetzt als Verpackungsetikett (`zpl.verpackung_erzeugen()`,
+QR-Code nativ mit `^BQ`). Weitere Designs pro Version über deren Feld `layout`.
 
-**Mehrere Drucker:** heute bewusst nur einer. Wenn nötig, wird `[drucker]` zu
-einer Liste, und der Auftrag bekommt ein Feld `drucker`.
+**Mehrere Drucker:** je Etikettenart einer (`[drucker]` und `[verpackung.drucker]`).

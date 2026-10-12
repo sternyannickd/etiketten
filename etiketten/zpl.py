@@ -185,6 +185,137 @@ def erzeugen(konfig: Konfig, daten: EtikettDaten) -> str:
     return "\n".join(z) + "\n"
 
 
+# --- Verpackungsetikett ---------------------------------------------------------
+
+@dataclass(frozen=True)
+class VerpackungsDaten:
+    name: str        # "|" = erzwungener Zeilenumbruch
+    info: str        # kurzer Text, "|" = neue Zeile, darf leer sein
+    charge: str      # bereits geprüft, z. B. "Rö261012-01"
+    roestdatum: date
+    mhd: date
+    qr: str          # Inhalt des QR-Codes (Adresse)
+    menge: int = 1
+
+
+# Byte-Kapazität eines QR-Codes mit Fehlerkorrektur M, Version 1–10
+_QR_KAPAZITAET = (14, 26, 42, 62, 84, 106, 122, 152, 180, 213)
+
+
+def qr_module(text: str) -> int:
+    """Kantenlänge des QR-Codes in Modulen (ohne Ruhezone), großzügig geschätzt."""
+    laenge = len(text.encode("utf-8"))
+    for version, kapazitaet in enumerate(_QR_KAPAZITAET, start=1):
+        if laenge <= kapazitaet:
+            return 17 + 4 * version
+    raise ValueError(f"QR-Inhalt zu lang ({laenge} Bytes, höchstens {_QR_KAPAZITAET[-1]})")
+
+
+def _kopf(konfig: Konfig, lay: Layout) -> list[str]:
+    drucker = konfig["drucker"]
+    z = ["^XA", "^CI28" if drucker.get("zeichensatz", "utf8") == "utf8" else "^CI27",
+         f"^PW{lay.breite}", f"^LL{lay.hoehe}", "^LH0,0"]
+    if drucker.get("schwaerzung") is not None:
+        z.append(f"^MD{int(drucker['schwaerzung'])}")
+    if drucker.get("geschwindigkeit") is not None:
+        z.append(f"^PR{int(drucker['geschwindigkeit'])}")
+    return z
+
+
+def _zeile(x: int, y: int, breite: int, schrift: int, text: str, ausrichtung: str = "L") -> str:
+    return f"^FO{x},{y}^A0N,{schrift},{schrift}^FB{breite},1,0,{ausrichtung}^FH^FD{feldtext(text)}^FS"
+
+
+def verpackung_erzeugen(konfig: Konfig, daten: VerpackungsDaten) -> str:
+    """ZPL für das Verpackungsetikett. `konfig` ist `Konfig.fuer_verpackung()`."""
+    if not 1 <= daten.menge <= 999:
+        raise ValueError("Menge muss zwischen 1 und 999 liegen")
+    if any(z in daten.qr for z in "^~"):
+        raise ValueError("QR-Adresse darf weder ^ noch ~ enthalten")
+    lay = Layout(konfig)
+    lo = konfig["layout"]
+    z = _kopf(konfig, lay)
+
+    # Name: groß, zentriert, bis zu max_zeilen
+    titel = lo["titel"]
+    t_breite, t_hoehe = lay.punkte(titel["breite"]), lay.punkte(titel["hoehe"])
+    schrift, zeilen = titel_setzen(
+        daten.name, t_breite, t_hoehe, int(titel["max_zeilen"]),
+        lay.punkte(titel["schrift_max"]), lay.punkte(titel["schrift_min"]),
+    )
+    zeilenhoehe = round(schrift * ZEILENABSTAND)
+    tx, ty = lay.pos(titel["x"], titel["y"])
+    ty += max(0, (t_hoehe - zeilenhoehe * len(zeilen)) // 2)
+    for i, zeile in enumerate(zeilen):
+        z.append(_zeile(tx, ty + i * zeilenhoehe, t_breite, schrift, zeile, "C"))
+
+    # Trennlinien über die Breite des Namens
+    for name in ("linie_oben", "linie_unten"):
+        linie = lo.get(name)
+        if linie:
+            lx, ly = lay.pos(titel["x"], linie["y"])
+            staerke = max(1, lay.punkte(linie["staerke"]))
+            z.append(f"^FO{lx},{ly}^GB{t_breite},{staerke},{staerke}^FS")
+
+    # Info: links bündig, selbst umbrochen, überzählige Zeilen werden gekürzt
+    info = lo["info"]
+    if daten.info.strip():
+        i_breite, i_schrift = lay.punkte(info["breite"]), lay.punkte(info["schrift"])
+        i_abstand = round(i_schrift * 1.3)
+        max_zeilen = max(1, lay.punkte(info["hoehe"]) // i_abstand)
+        zeilen = []
+        for absatz in daten.info.split("|"):
+            zeilen += _umbrechen(absatz.strip(), i_breite, i_schrift) if absatz.strip() else [""]
+        if len(zeilen) > max_zeilen:
+            zeilen = zeilen[:max_zeilen]
+            letzte = zeilen[-1]
+            while letzte and textbreite(letzte + "...", i_schrift) > i_breite:
+                letzte = letzte[:-1]
+            zeilen[-1] = letzte.rstrip() + "..."
+        ix, iy = lay.pos(info["x"], info["y"])
+        for n, zeile in enumerate(zeilen):
+            if zeile:
+                z.append(_zeile(ix, iy + n * i_abstand, i_breite, i_schrift, zeile))
+
+    # Daten links unten: Beschriftung klein, Wert groß darunter
+    d = lo["daten"]
+    qr = lo["qr"]
+    dx, dy = lay.pos(d["x"], d["y"])
+    d_breite = lay.punkte(qr["x"] - d["x"] - 2)
+    b_schrift, w_schrift = lay.punkte(d["beschriftung_schrift"]), lay.punkte(d["wert_schrift"])
+    fmt = d["datumsformat"]
+    for n, (beschriftung, wert) in enumerate((
+        ("Röstdatum", daten.roestdatum.strftime(fmt)),
+        ("Charge", daten.charge),
+        ("Mindestens haltbar bis", daten.mhd.strftime(fmt)),
+    )):
+        y = dy + n * lay.punkte(d["abstand"])
+        z.append(_zeile(dx, y, d_breite, b_schrift, beschriftung))
+        w = w_schrift
+        while w > 12 and textbreite(wert, w) > d_breite:
+            w -= 1
+        z.append(_zeile(dx, y + round(b_schrift * 1.25), d_breite, w, wert))
+
+    # QR-Code rechts unten, so groß wie möglich im Feld, darunter die Adresse lesbar
+    if daten.qr:
+        feld = lay.punkte(qr["groesse"])
+        module = qr_module(daten.qr)
+        faktor = max(1, min(10, feld // module))
+        qx, qy = lay.pos(qr["x"], qr["y"])
+        rand = (feld - module * faktor) // 2
+        z.append(f"^FO{qx + rand},{qy + rand}^BQN,2,{faktor}^FDMA,{daten.qr}^FS")
+        anzeige = konfig["verpackung"].get("qr_text") or daten.qr.split("://", 1)[-1].rstrip("/")
+        t_schrift = lay.punkte(qr["text_schrift"])
+        t_breite = feld + lay.punkte(6)
+        while t_schrift > 10 and textbreite(anzeige, t_schrift) > t_breite:
+            t_schrift -= 1
+        z.append(_zeile(qx - lay.punkte(3), qy + feld + lay.punkte(1.5), t_breite, t_schrift, anzeige, "C"))
+
+    z.append(f"^PQ{daten.menge},0,1,Y")
+    z.append("^XZ")
+    return "\n".join(z) + "\n"
+
+
 def kodieren(konfig: Konfig, zpl_text: str) -> bytes:
     """ZPL-Text in die Bytes umwandeln, die zum Drucker gehen (passend zu ^CI)."""
     if konfig["drucker"].get("zeichensatz", "utf8") == "utf8":

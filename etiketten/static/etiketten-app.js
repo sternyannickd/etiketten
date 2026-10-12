@@ -12,6 +12,8 @@
 // Das Aussehen passt sich über CSS-Variablen der einbindenden Seite an
 // (--farbe-akzent, --schrift, --radius …), siehe etiketten-app.css.
 
+import { apiAnfrage, deutschesDatum, el, heuteIso } from "./gemeinsam.js";
+
 const VORLAGE = `
   <link rel="stylesheet" href="${new URL("etiketten-app.css", import.meta.url)}">
   <header class="kopf">
@@ -102,6 +104,11 @@ const VORLAGE = `
           <label><span>Haltbarkeit (Monate)</span>
             <input id="f-monate" type="number" min="1" max="60" inputmode="numeric">
           </label>
+          <label class="breit"><span>Info für das Verpackungsetikett (optional)</span>
+            <textarea id="f-info" rows="3" maxlength="300"
+              placeholder="z. B. Schokolade, Haselnuss|Huila, 1.700 m|Gewaschen"></textarea>
+            <small>Kurz halten. „|“ beginnt eine neue Zeile.</small>
+          </label>
         </div>
         <label id="f-archiv-zeile" class="haken">
           <input id="f-archiviert" type="checkbox"> Kaffee archivieren (wird nicht mehr zum Drucken angeboten)
@@ -119,17 +126,6 @@ const VORLAGE = `
   </div>
 `;
 
-function heuteIso() {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 10);
-}
-
-function deutschesDatum(iso) {
-  const [j, m, t] = iso.split("-");
-  return `${t}.${m}.${j}`;
-}
-
 function ean13Pruefziffer(zwoelf) {
   let summe = 0;
   for (let i = 0; i < 12; i++) summe += Number(zwoelf[i]) * (i % 2 ? 3 : 1);
@@ -146,17 +142,6 @@ function gtinHinweis(gtin) {
   return Number(gtin[12]) === soll
     ? { ok: true, text: "✓ gültig" }
     : { ok: false, text: `Prüfziffer falsch (müsste ${soll} sein)` };
-}
-
-function el(tag, eigenschaften = {}, ...kinder) {
-  const e = document.createElement(tag);
-  for (const [k, w] of Object.entries(eigenschaften)) {
-    if (k === "data") Object.assign(e.dataset, w);
-    else if (k in e) e[k] = w;
-    else e.setAttribute(k, w);
-  }
-  e.append(...kinder.filter((k) => k !== null && k !== undefined));
-  return e;
 }
 
 class EtikettenApp extends HTMLElement {
@@ -206,21 +191,8 @@ class EtikettenApp extends HTMLElement {
     return (this.getAttribute("api") || "/api").replace(/\/+$/, "");
   }
 
-  async api(pfad, daten, methode) {
-    const optionen = daten === undefined ? {} : {
-      method: methode || "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(daten),
-    };
-    const antwort = await fetch(this.apiBasis + pfad, optionen);
-    const typ = antwort.headers.get("Content-Type") || "";
-    if (!typ.includes("application/json")) {
-      if (!antwort.ok) throw new Error(`Serverfehler ${antwort.status}`);
-      return antwort;
-    }
-    const json = await antwort.json();
-    if (!antwort.ok || json.ok === false) throw new Error(json.fehler || `Serverfehler ${antwort.status}`);
-    return json;
+  api(pfad, daten, methode) {
+    return apiAnfrage(this.apiBasis, pfad, daten, methode);
   }
 
   meldung(text, art = "", id = "meldung") {
@@ -511,6 +483,7 @@ class EtikettenApp extends HTMLElement {
     this.$("formular-titel").textContent = kaffee ? kaffee.anzeigename : "Neuer Kaffee";
     this.$("f-name").value = kaffee ? kaffee.name : "";
     this.$("f-monate").value = kaffee ? kaffee.mhd_monate : 12;
+    this.$("f-info").value = kaffee ? kaffee.info || "" : "";
     this.$("f-archiv-zeile").hidden = !kaffee;
     this.$("f-archiviert").checked = Boolean(kaffee && kaffee.archiviert);
     const versionen = kaffee ? kaffee.versionen : [null];
@@ -563,6 +536,7 @@ class EtikettenApp extends HTMLElement {
     const daten = {
       name: this.$("f-name").value.trim(),
       mhd_monate: Number(this.$("f-monate").value),
+      info: this.$("f-info").value.trim(),
       archiviert: this.$("f-archiviert").checked,
       versionen: this.alle(".version-zeile", this.$("f-versionen")).map((z) => ({
         id: z.dataset.id || undefined,

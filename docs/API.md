@@ -1,9 +1,9 @@
 # HTTP-API (Vertrag)
 
-Diese API spricht das Web Component `<etiketten-app>`. Heute stellt sie der lokale
-Python-Server bereit (`etiketten/server.py`, auch für den Notbetrieb). Später soll
-sie auch auf dem Server laufen (TOSTO, PHP). **Jede Umsetzung muss sich an dieses
-Dokument halten.** Dann funktioniert dieselbe Oberfläche an beiden Servern.
+Diese API sprechen die Web Components `<etiketten-app>` und `<verpackung-app>`.
+Sie stellt der Python-Server bereit (`etiketten/server.py`), lokal, im
+Entwicklermodus und auf dem Firmenserver hinter tosto. **Jede Umsetzung muss sich
+an dieses Dokument halten.**
 
 Die Basisadresse übergibt die einbindende Seite: `<etiketten-app api="/api">`. Alle
 Pfade unten gelten relativ dazu.
@@ -16,6 +16,8 @@ Pfade unten gelten relativ dazu.
   `503` Druckfehler. Die Meldung zeigt die Oberfläche unverändert an. Sie sollte
   deshalb verständlich und deutsch sein, mehrere Fehler stehen zeilenweise darin.
 - Datumswerte als `JJJJ-MM-TT`.
+- Schreibende Anfragen tragen `X-CSRF-Token`, wenn die einbindende Seite ein
+  `<meta name="csrf-token">` hat. `401` = Sitzung abgelaufen (prüft tosto).
 
 ## Datenmodell
 
@@ -26,6 +28,7 @@ Pfade unten gelten relativ dazu.
   "anzeigename": "Kolumbien",
   "mhd_monate": 12,
   "archiviert": false,
+  "info": "Schokolade, Nuss|Huila, 1.700 m",
   "versionen": [
     {"id": "edeka", "bezeichnung": "Edeka", "gtin": "2064000002134",
      "layout": "standard", "archiviert": false}
@@ -40,6 +43,7 @@ Pfade unten gelten relativ dazu.
 | `anzeigename` | Nur in Antworten: `name` mit `|` → Leerzeichen. |
 | `mhd_monate` | Ganzzahl 1–60. Gilt für alle Versionen des Kaffees. |
 | `archiviert` | Archivierte Kaffees werden nicht mehr zum Drucken angeboten. Gelöscht wird nie, damit das Druckprotokoll lesbar bleibt. |
+| `info` | Optional, max. 300 Zeichen. Kurzer Text fürs Verpackungsetikett, `|` = neue Zeile. |
 | `versionen` | Mindestens eine. |
 | `id` (Version) | Wie die Kaffee-ID, aus `bezeichnung`, eindeutig innerhalb des Kaffees. |
 | `bezeichnung` | Pflicht, frei wählbar (z. B. „Edeka“, „Rewe 1 kg“). |
@@ -55,10 +59,13 @@ lokal in `data/produkte.json`.
 ### `GET /status`
 
 ```json
-{"drucker": {"ok": true, "meldung": "…", "hinweis": ""},
+{"ok": true, "meldung": "…",
+ "drucker": {"ok": true, "meldung": "…", "hinweis": ""},
  "drucker_name": "Citizen CL-S521", "transport": "usb",
- "vorschau": true, "produkte_bearbeiten": true}
+ "vorschau": true, "produkte_bearbeiten": true, "verpackung": true}
 ```
+
+`ok`/`meldung` sind das Statusmuster des Portals (Symbol auf der Kachel).
 
 `produkte_bearbeiten = false` blendet den Reiter „Produkte“ aus (z. B. im Notbetrieb).
 
@@ -115,10 +122,33 @@ Bestehende Versionen tragen ihre `id`, neue Versionen haben keine.
 
 Antwort wie bei `POST /kaffees`.
 
+## Verpackungsetikett
+
+### `GET /verpackung/status`
+
+Wie `GET /status`, aber für den Drucker der Verpackungsetiketten.
+
+### `POST /verpackung/drucken`, `POST /verpackung/zpl`, `POST /verpackung/vorschau`
+
+```json
+{"kaffee": "kolumbien", "charge": "Rö261012-01", "mhd": "2027-10-12", "menge": 2}
+```
+
+- `charge` Pflicht, Format `RöJJMMTT-NN` (auch `Ro…`/`Roe…`, Groß/klein egal; auf dem
+  Etikett steht immer `Rö…`). Das Röstdatum ist das Datum in der Charge, es darf
+  nicht in der Zukunft liegen.
+- `mhd` fehlt → Röstdatum + `mhd_monate` des Kaffees.
+- Versionen spielen hier keine Rolle (kein Barcode).
+- Antworten wie beim Produktetikett.
+
+### `POST /verpackung/testdruck`
+
+Testetikett in der Größe des Verpackungsetiketts.
+
 ## Noch nicht festgelegt
 
-- **Anmeldung:** Lokal gibt es keine (nur im eigenen Netz erreichbar). Auf dem Server
-  regelt das die einbindende Website, siehe [ARCHITEKTUR.md](ARCHITEKTUR.md).
-- **Druckwarteschlange und Druckagent** (Drucken über den Server): Dann antwortet
-  `POST /drucken` mit einem Auftrag und seinem Status, statt sofort zu drucken. Das
-  wird hier ergänzt, sobald es gebaut wird.
+- **Anmeldung:** Lokal gibt es keine (nur `127.0.0.1`). Auf dem Firmenserver prüft
+  tosto vor jeder Anfrage.
+- **Druckagent für Drucker am Client-PC** (Verpackungsetiketten, tosto T8): Dann
+  antwortet `POST /verpackung/drucken` mit einem Auftrag und seinem Status, statt
+  sofort zu drucken. Wird hier ergänzt, sobald es gebaut wird.

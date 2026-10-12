@@ -1,7 +1,12 @@
 # Etikettendruck
 
-Druckt einfache Produktetiketten mit **Titel, EAN-13-Barcode und MHD** auf einem
-Citizen-Etikettendrucker (Referenz: CL-S521, 57 × 32 mm).
+Druckt zwei Arten von Etiketten auf Citizen-Etikettendruckern (CL-S521):
+
+- **Produktetikett** (57 × 32 mm): **Titel, EAN-13-Barcode und MHD**.
+- **Verpackungsetikett** (zurzeit 100 × 150 mm): **Name, kurze Info, Röstdatum,
+  Charge, MHD und QR-Code**. Seite `/verpackung`, siehe unten.
+
+Beide nutzen dieselbe Produktliste.
 
 Das Programm erzeugt **ZPL**, die Druckersprache des Druckers, und schickt sie
 unverändert an den Drucker. Es gibt kein PDF, keinen Treiber und kein Rastern.
@@ -48,7 +53,46 @@ im Startmenü an.
 > prüfen, Haltbarkeiten eintragen) stehen in
 > [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md#offene-punkte).
 
-## Bedienung
+## Verpackungsetikett
+
+Oben auf der Seite **Verpackungsetikett** wählen (oder `http://localhost:8077/verpackung`).
+
+1. **Kaffee** antippen. Darunter steht seine **Info**, die mit aufs Etikett kommt.
+   Gepflegt wird sie im Produktetikett unter **Produkte** (Feld „Info für das
+   Verpackungsetikett“, `|` = neue Zeile).
+2. **Charge** eingeben, Format `RöJJMMTT-NN`, z. B. `Rö261012-01`. „Rö“ und das
+   heutige Datum sind vorbelegt. Das **Röstdatum** wird aus der Charge gelesen,
+   das **MHD** daraus berechnet (Haltbarkeit des Kaffees), von Hand änderbar.
+   `Ro…` statt `Rö…` geht auch.
+3. **Anzahl** wählen, **Drucken**.
+
+Der **QR-Code** führt zu `qr_adresse` unter `[verpackung]` in `config.toml`.
+Größe, Layout und Drucker stehen dort ebenfalls (`[verpackung.etikett]`,
+`[verpackung.layout.*]`, `[verpackung.drucker]`). Für eine andere Etikettengröße
+genügt es, diese Werte anzupassen.
+
+Kommandozeile:
+
+```sh
+python3 -m etiketten verpackung kolumbien --charge Rö261012-01 --menge 2
+python3 -m etiketten verpackung kolumbien --charge Rö261012-01 --zpl   # nur ausgeben
+python3 -m etiketten testdruck --verpackung                            # Rahmen in 100 × 150
+```
+
+### Probedruck am Rechner mit dem Versandetiketten-Drucker (Linux Mint)
+
+```sh
+git clone https://github.com/sternyannickd/etiketten.git labels && cd labels && git checkout web-component   # oder: git pull
+sudo usermod -aG lp $USER        # einmalig, danach ab- und wieder anmelden
+python3 -m etiketten check       # zeigt beide Drucker; der Citizen wird automatisch gefunden
+python3 -m etiketten testdruck --verpackung
+./start.sh                       # dann im Browser „Verpackungsetikett“
+```
+
+Hängen dort noch andere USB-Drucker (z. B. ein Versanddrucker eines anderen
+Herstellers), findet `usb_kennung = "CITIZEN"` trotzdem den richtigen.
+
+## Bedienung (Produktetikett)
 
 1. **Kaffee** antippen. Hat er mehrere Versionen (z. B. Edeka und Rewe), darunter
    die **Version** wählen.
@@ -90,6 +134,24 @@ Alles Einstellbare steht kommentiert in [`config.toml`](config.toml): Druckweg,
 Etikettengröße, Kalibrierung, Layout in Millimetern, Zeichensatz und Vorschau.
 Eine andere Datei lässt sich mit `--config pfad` oder `ETIKETTEN_CONFIG=pfad` verwenden.
 
+**Nur für diesen Rechner:** Eine `config.lokal.toml` neben der `config.toml` gilt
+zusätzlich und steht nicht im Git. Dort gehören z. B. Kalibrierung oder ein fester
+`usb_geraet` hin, dann gibt es beim `git pull` keine Konflikte.
+
+## Entwicklermodus
+
+```sh
+python3 -m etiketten dev            # http://localhost:8077, nur 127.0.0.1
+python3 -m etiketten dev --drucker  # doch auf den echten Drucker
+```
+
+- arbeitet mit einer **Kopie** der Produktliste in `var/dev/` (beim ersten Start
+  angelegt), die echten Daten bleiben unberührt,
+- **druckt in Dateien** (`var/dev/ausgabe/*.zpl`), Protokolle ebenfalls in `var/dev/`,
+- übernimmt das **Design von tosto**, wenn es `../tosto/rahmen/theme.css` gibt
+  (anderer Ort: `--rahmen pfad` oder `TOSTO_RAHMEN=pfad`), sonst das eigene,
+- zeigt oben ein gelbes Band „Entwicklermodus“.
+
 **Kalibrieren:** Testetikett drucken. Der Rahmen sollte überall 2 mm Abstand
 zum Rand haben. Falls nicht, `versatz_x` / `versatz_y` unter `[etikett]` in mm
 anpassen (positiv = nach rechts/unten).
@@ -101,19 +163,22 @@ anpassen (positiv = nach rechts/unten).
 
 ```sh
 python3 -m etiketten start [--port 8077] [--host 0.0.0.0] [--kein-browser]
+python3 -m etiketten dev [--port 8077] [--drucker] [--rahmen pfad]      # Entwicklermodus
 python3 -m etiketten produkte [--alle]                         # Kaffees mit Versionen
 python3 -m etiketten check
 python3 -m etiketten testdruck
 python3 -m etiketten zpl kolumbien --mhd 02.10.2027 --menge 3   # nur ausgeben
 python3 -m etiketten drucken kolumbien --menge 12              # MHD berechnet
 python3 -m etiketten drucken espresso-guatemala --version rewe # bei mehreren Versionen
+python3 -m etiketten verpackung kolumbien --charge Rö261012-01  # Verpackungsetikett
 ```
 
 ## Projektstruktur
 
 ```
 etiketten/
-  zpl.py        Layout → ZPL (die einzige Stelle, an der das Etikett entsteht)
+  zpl.py        Layout → ZPL (die einzige Stelle, an der Etiketten entstehen, beide Arten)
+  charge.py     Chargennummer RöJJMMTT-NN prüfen, Röstdatum daraus lesen
   drucker.py    Druckwege: usb, cups, tcp, datei
   dienst.py     verbindet Produkte, MHD, ZPL, Druckweg, Vorschau, Protokoll
   server.py     Weboberfläche + JSON-API
@@ -121,8 +186,8 @@ etiketten/
   produkte.py   Kaffees und Versionen: lesen, prüfen (EAN), speichern
   mhd.py        Datumsrechnung
   config.py     config.toml laden
-  static/       Oberfläche ohne Build-Schritt: Web Component <etiketten-app>
-                (etiketten-app.js/.css), index.html bindet es ein
+  static/       Oberfläche ohne Build-Schritt: Web Components <etiketten-app> und
+                <verpackung-app>, gemeinsam.js, index.html und verpackung.html
 data/produkte.json
 config.toml
 docs/           Architektur, Drucker-Einrichtung, Entscheidungen

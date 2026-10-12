@@ -1,0 +1,22 @@
+/* Rahmen der lokalen Seiten (index.html, verpackung.html). Im Portal tosto
+   übernimmt das tosto selbst; die Components bringen ihre eigenen Stile mit. */
+body { margin: 0; padding: 16px; background: #f4f1ec; }
+@media (max-width: 800px) { body { padding: 12px; } }
+
+.arten {
+  display: flex; gap: 4px; max-width: 1200px; margin: 0 auto 12px;
+  font: 15px system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.arten a {
+  padding: 6px 14px; border-radius: 999px; text-decoration: none;
+  color: var(--farbe-text-leise, #7a6f66);
+}
+.arten a[aria-current] {
+  background: var(--farbe-akzent, #6b3e26); color: var(--farbe-akzent-text, #fff);
+}
+
+.entwicklermodus {
+  font: 13px system-ui, sans-serif; padding: 6px 12px; margin: -16px -16px 16px;
+  background: #fff4cc; color: #5c4400; border-bottom: 1px solid #e6d28a;
+}
+@media (max-width: 800px) { .entwicklermodus { margin: -12px -12px 12px; } }
