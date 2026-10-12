@@ -97,7 +97,11 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
     (Entwurf A: Rahmen, Stern-Ornament) und Banner (Entwurf B: schwarzes Band),
     Kopfzeile „Stern Rösterei Wissmüller“. Welche bleibt, ist offen. Eine eigene
     Schrift ginge nur als Grafik, der Drucker hat nur eine skalierbare Schrift.
-15. **Windows-Versanddruck** nach der automatischen Umschaltung auf ZPL prüfen
+15. **QR-Code bei Klassisch und Banner** (Rückmeldung nach dem Druck, 12.10.2026): Er ist
+    kleiner als bei Schlicht (Feld 30 statt 36 mm) und sitzt dadurch etwas verloren im
+    Etikett statt bündig über der Adresse darunter. Größer machen und direkt über der
+    Adresse ausrichten (`_verpackung_gestaltet` in `zpl.py`).
+16. **Windows-Versanddruck** nach der automatischen Umschaltung auf ZPL prüfen
     (`docs/DRUCKER.md` Abschnitt 3a).
 
 ## Für künftige Versionen / das Etikettenkonzept
