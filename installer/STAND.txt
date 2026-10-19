@@ -1,3 +1,3 @@
 Version:  0.3.0
-Gebaut:   2026-10-19 09:45 UTC
-Aus Commit: 73fde6d (Branch installer)
+Gebaut:   2026-10-19 09:54 UTC
+Aus Commit: 14f6375 (Branch installer)
