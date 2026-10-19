@@ -1,7 +1,22 @@
 # Änderungen
 
-## Unveröffentlicht
+## 0.3.0 – 2026-10-19
 
+Fertiges Programm mit Installer für Windows und Linux.
+
+- **Installer** für Windows (`.exe`, Inno Setup) und Linux (`.sh`), beide ohne
+  Adminrechte und ohne Python. GitHub baut sie nach jedem Push und legt sie in
+  `installer/` ab. Erneut ausführen = Update. Siehe `docs/INSTALLATION.md`.
+- **Datenordner pro Benutzer**, den das Programm selbst anlegt und ergänzt. Die
+  Produktliste aus dem Repo dient nur als Startliste; eigene Produkte und
+  Einstellungen überstehen jedes Update. Beschädigte Einstellungen werden
+  beiseitegelegt und neu angelegt.
+- **Produkte im Programm anlegen, ändern und löschen**, mit sofortiger
+  EAN-Prüfung. Die CSV wird sicher geschrieben (Zwischendatei, `.bak`).
+- **Druckweg `windows`**: ZPL als Rohdaten über die Windows-Druckwarteschlange,
+  findet den Citizen automatisch. Neuer Standard `transport = "auto"`.
+- Doppelklick bei laufendem Programm öffnet nur den Browser. „Programm beenden“
+  und „Datenordner öffnen“ unter Werkzeuge. Version und Datenordner werden angezeigt.
 - **Sicherheit:** Eine fremde Webseite, die im Browser am Druckrechner geöffnet
   ist, konnte unbemerkt Druckaufträge an `localhost:8077` schicken. Der Server
   nimmt POST jetzt nur noch als `application/json` und ohne fremden `Origin` an

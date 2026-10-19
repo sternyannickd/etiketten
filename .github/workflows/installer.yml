@@ -1,0 +1,150 @@
+# Baut nach jedem Push die Installer für Linux und Windows und legt sie im
+# Ordner installer/ ins Repo. Nach ein paar Minuten genügt ein `git pull`.
+#
+# Der Commit mit den Installern löst diesen Workflow nicht erneut aus
+# (Commits mit GITHUB_TOKEN starten keine Workflows, und installer/ ist
+# ohnehin nicht unter `paths`).
+
+name: Installer bauen
+
+on:
+  push:
+    branches: [main, installer]
+    paths:
+      - "etiketten/**"
+      - "data/**"
+      - "config.toml"
+      - "packaging/**"
+      - ".github/workflows/installer.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: installer-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON: "3.12"
+  PYINSTALLER: "6.22.3"
+
+jobs:
+  linux:
+    # Älteres Ubuntu: Das Programm läuft dann auch auf älteren Linux-Mint-Versionen (ab 21).
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON }}
+      - name: Tests
+        run: python -m unittest discover -s . -p "test_*.py"
+      - name: Programm bauen
+        run: |
+          pip install "pyinstaller==$PYINSTALLER"
+          pyinstaller --noconfirm packaging/etikettendruck.spec
+      - name: Installer bauen
+        run: sh packaging/linux/bauen.sh
+      - name: Installer ausprobieren
+        run: |
+          export HOME="$RUNNER_TEMP/testhome" BROWSER=true
+          mkdir -p "$HOME/.local/share/etikettendruck"
+          printf '[drucker]\ntransport = "datei"\n[vorschau]\naktiv = false\n' > "$HOME/.local/share/etikettendruck/config.toml"
+          echo n | sh installer/Etikettendruck-Installer-Linux.sh
+          sleep 3
+          curl -sf http://localhost:8077/api/produkte
+          "$HOME/.local/bin/etikettendruck" produkte
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: installer/Etikettendruck-Installer-Linux.sh
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON }}
+      - name: Tests
+        run: python -m unittest discover -s . -p "test_*.py"
+      - name: Windows-Druckweg prüfen (RAW über die Druckwarteschlange)
+        # Ein Drucker mit CITIZEN im Namen, der in eine Datei druckt: Kommt die ZPL
+        # byte-genau an, reicht Windows sie auch an den echten Citizen unverändert durch.
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $ausgabe = "$env:RUNNER_TEMP\citizen.prn"
+          Add-PrinterDriver -Name "Generic / Text Only"
+          Add-PrinterPort -Name $ausgabe
+          Add-Printer -Name "CITIZEN Test" -DriverName "Generic / Text Only" -PortName $ausgabe
+          python -c "from etiketten import drucker; t = drucker.WindowsTransport(); print(t.pruefen()); print(t.senden(b'^XA^FDGroesse^FS^XZ'))"
+          Start-Sleep -Seconds 5
+          $inhalt = [IO.File]::ReadAllText($ausgabe)
+          if ($inhalt -ne '^XA^FDGroesse^FS^XZ') { throw "Unerwarteter Inhalt: '$inhalt'" }
+          "RAW-Druck byte-genau angekommen."
+      - name: Programm bauen
+        run: |
+          pip install "pyinstaller==$env:PYINSTALLER"
+          pyinstaller --noconfirm packaging/etikettendruck.spec
+      - name: Programm ausprobieren
+        shell: pwsh
+        run: |
+          $env:ETIKETTEN_DATEN = "$env:RUNNER_TEMP\daten"
+          New-Item -ItemType Directory -Force $env:ETIKETTEN_DATEN | Out-Null
+          "[drucker]`ntransport = `"datei`"`n[vorschau]`naktiv = false`n" | Set-Content -Encoding utf8NoBOM "$env:ETIKETTEN_DATEN\config.toml"
+          $env:BROWSER = "none"
+          $p = Start-Process dist\etikettendruck\etikettendruck.exe -PassThru
+          Start-Sleep -Seconds 8
+          $r = Invoke-RestMethod http://localhost:8077/api/status
+          if (-not $r.drucker.ok) { throw "Status nicht ok" }
+          Invoke-RestMethod -Method Post -ContentType "application/json" -Body '{"produkt":"kolumbien"}' http://localhost:8077/api/drucken
+          Get-ChildItem "$env:ETIKETTEN_DATEN\var\ausgabe"
+          Stop-Process $p
+      - name: Installer bauen
+        shell: pwsh
+        run: |
+          $version = python -c "import etiketten; print(etiketten.__version__)"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --no-progress -y
+          }
+          & $iscc "/DVersion=$version" packaging\windows\etikettendruck.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup fehlgeschlagen" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: installer/Etikettendruck-Installer-Windows.exe
+          if-no-files-found: error
+
+  einchecken:
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: installer
+          merge-multiple: true
+      - name: Installer ins Repo legen
+        run: |
+          chmod 755 installer/Etikettendruck-Installer-Linux.sh
+          VERSION=$(python3 -c "import etiketten; print(etiketten.__version__)")
+          cat > installer/STAND.txt <<EOD
+          Version:  $VERSION
+          Gebaut:   $(date -u '+%Y-%m-%d %H:%M UTC')
+          Aus Commit: ${GITHUB_SHA::7} (Branch ${GITHUB_REF_NAME})
+          EOD
+          sed -i 's/^ *//' installer/STAND.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add installer
+          git update-index --chmod=+x installer/Etikettendruck-Installer-Linux.sh
+          git diff --cached --quiet && exit 0
+          git commit -m "Installer $VERSION gebaut (aus ${GITHUB_SHA::7})"
+          git pull --rebase
+          git push

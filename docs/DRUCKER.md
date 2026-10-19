@@ -79,6 +79,11 @@ Warnung beim Anlegen ist normal.)
 Keinen Citizen-Treiber bzw. keine PPD für diese Warteschlange verwenden. Genau
 diese Umwandlung hat beim alten PDF-Weg die Probleme verursacht.
 
+## 5a. Windows
+
+Unter Windows geht die ZPL als Rohdaten (`RAW`) über die Windows-Druckwarteschlange.
+Einrichtung siehe [INSTALLATION.md](INSTALLATION.md#drucker-unter-windows-einrichten).
+
 ## 6. Später: Netzwerk
 
 Bekommt der Drucker eine Netzwerkschnittstelle, genügt in `config.toml`:

@@ -6,3 +6,5 @@ var/
 .pytest_cache/
 .vscode/
 .idea/
+dist/
+build/

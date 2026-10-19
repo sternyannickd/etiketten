@@ -22,7 +22,17 @@ und [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md).
 
 ---
 
-## Schnellstart (Linux Mint, Drucker per USB)
+## Installation als fertiges Programm (Windows oder Linux)
+
+Im Ordner [`installer/`](installer/) liegt je ein Installer für **Windows** und
+**Linux**. Doppelklicken genügt, ohne Adminrechte und ohne Python. Erneut
+ausführen = Update, eigene Produkte bleiben erhalten. Neue Produkte legt man im
+Programm mit **+ Neues Produkt** an. Details, Drucker unter Windows und wo die
+Daten liegen: [`docs/INSTALLATION.md`](docs/INSTALLATION.md).
+
+Der folgende Schnellstart beschreibt den Betrieb direkt aus dem Quellcode.
+
+## Schnellstart aus dem Quellcode (Linux Mint, Drucker per USB)
 
 ```sh
 # 1. Einmalig: Schreibrecht auf den USB-Drucker, danach ab- und wieder anmelden
@@ -54,12 +64,17 @@ im Startmenü an.
    steht dort „manuell“. „wieder berechnen“ schaltet zurück.
 3. **Anzahl** wählen und **Drucken** drücken. Ab 50 Etiketten wird nachgefragt.
 
-Unter **Werkzeuge** gibt es das Testetikett und den erzeugten ZPL-Text.
+Unter **Werkzeuge** gibt es das Testetikett, den erzeugten ZPL-Text, den
+Datenordner und „Programm beenden“.
 Ein Direktlink auf ein Produkt geht so: `http://localhost:8077/?produkt=kolumbien`.
 
 ## Produkte pflegen
 
-Die Produkte stehen in [`data/produkte.csv`](data/produkte.csv):
+Am einfachsten im Programm: **+ Neues Produkt** bzw. ein Produkt wählen und
+**Gewähltes Produkt bearbeiten** (auch Löschen). Die EAN wird dabei sofort geprüft.
+
+Die Produkte stehen in [`data/produkte.csv`](data/produkte.csv) (im installierten
+Programm im Datenordner, siehe [`docs/INSTALLATION.md`](docs/INSTALLATION.md)):
 
 ```csv
 id,name,gtin,mhd_monate
@@ -107,17 +122,20 @@ python3 -m etiketten drucken kolumbien --menge 12              # MHD berechnet
 ```
 etiketten/
   zpl.py        Layout → ZPL (die einzige Stelle, an der das Etikett entsteht)
-  drucker.py    Druckwege: usb, cups, tcp, datei
+  drucker.py    Druckwege: windows, usb, cups, tcp, datei
   dienst.py     verbindet Produkte, MHD, ZPL, Druckweg, Vorschau, Protokoll
   server.py     Weboberfläche + JSON-API
   cli.py        Kommandozeile
+  app.py        Einstieg des installierten Programms (Doppelklick)
   produkte.py   CSV lesen, EAN prüfen
   mhd.py        Datumsrechnung
   config.py     config.toml laden
   static/       Oberfläche (HTML/CSS/JS, ohne Build-Schritt)
 data/produkte.csv
 config.toml
-docs/           Architektur, Drucker-Einrichtung, Entscheidungen
+packaging/      Bauplan für Programm und Installer (PyInstaller, Inno Setup)
+installer/      fertige Installer (baut GitHub nach jedem Push)
+docs/           Architektur, Installation, Drucker-Einrichtung, Entscheidungen
 fragen/         Fragenkataloge (Druckprogramm, Etikettenkonzept)
 assets/         alte SVG-Vorlage und Erkenntnisse aus dem ersten Versuch
 tests/
@@ -131,6 +149,7 @@ python3 -m unittest discover -s tests -t .
 
 ## Weitere Dokumentation
 
+- [`docs/INSTALLATION.md`](docs/INSTALLATION.md): Installer für Windows und Linux, Datenordner, Updates, Drucker unter Windows
 - [`docs/DRUCKER.md`](docs/DRUCKER.md): Drucker einrichten, Emulation, CUPS, Fehlersuche
 - [`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md): Aufbau, API, Erweiterung (Raspberry Pi, Enterprise-System)
 - [`docs/ENTSCHEIDUNGEN.md`](docs/ENTSCHEIDUNGEN.md): getroffene Entscheidungen und offene Punkte

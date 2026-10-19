@@ -17,14 +17,15 @@ ZPL-Text, der sowohl in die Vorschau als auch zum Drucker geht. Der Druckweg
 
 | Modul | Aufgabe | Kennt |
 |-------|---------|-------|
-| `config.py` | `config.toml` laden, mit Standardwerten zusammenführen | – |
-| `produkte.py` | CSV lesen, EAN-13 prüfen | – |
+| `config.py` | `config.toml` laden, mit Standardwerten zusammenführen; im installierten Programm den Datenordner anlegen | – |
+| `produkte.py` | CSV lesen, EAN-13 prüfen, Liste sicher schreiben | – |
 | `mhd.py` | Datum + Monate | – |
 | `zpl.py` | Layout (mm) → ZPL (Druckpunkte), Titel umbrechen und Schrift anpassen, Testetikett | config |
-| `drucker.py` | Druckwege `usb`, `cups`, `tcp`, `datei`, jeweils mit `pruefen()` und `senden(bytes)` | config |
-| `dienst.py` | `Druckdienst`: der Ablauf, also Produkt suchen, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau | alle oben |
+| `drucker.py` | Druckwege `windows`, `usb`, `cups`, `tcp`, `datei` (`auto` wählt je System), jeweils mit `pruefen()` und `senden(bytes)` | config |
+| `dienst.py` | `Druckdienst`: der Ablauf, also Produkt suchen, MHD vorschlagen, ZPL erzeugen, senden, protokollieren, Vorschau; Produkte anlegen/ändern/löschen | alle oben |
 | `server.py` | HTTP: Oberfläche und JSON-API | dienst |
 | `cli.py` | Kommandozeile | dienst, server |
+| `app.py` | Einstieg des installierten Programms: Server starten, Browser öffnen, Log-Datei | cli, server |
 | `static/` | Browser-Oberfläche ohne Build-Schritt | API |
 
 Oberfläche, Kommandozeile und ein späteres Enterprise-System sind gleichwertige
@@ -52,12 +53,21 @@ Vorschaufehlern und 503 bei Druckfehlern.
 
 | Methode & Pfad | Eingabe | Antwort |
 |----------------|---------|---------|
-| `GET /api/status` | – | `{drucker:{ok,meldung,hinweis}, drucker_name, transport, vorschau}` |
-| `GET /api/produkte` | – | `[{id,name,gtin,mhd_monate}]` |
+| `GET /api/status` | – | `{drucker:{ok,meldung,hinweis}, drucker_name, transport, vorschau, version, daten_ordner, warnungen}` |
+| `GET /api/produkte` | – | `[{id,name,etikett_name,gtin,mhd_monate}]` |
 | `GET /api/mhd?produkt=ID&abgepackt=JJJJ-MM-TT` | – | `{mhd}` |
 | `POST /api/zpl` | `{produkt, mhd?, menge?}` | `{ok, zpl}` |
 | `POST /api/vorschau` | `{produkt, mhd?}` | PNG |
 | `POST /api/drucken` | `{produkt, mhd?, menge?}` | `{ok, meldung}` |
+| `POST /api/produkt/speichern` | `{alte_id?, name, gtin, mhd_monate}` (ohne `alte_id` = neu) | `{ok, produkt}` |
+| `POST /api/produkt/loeschen` | `{id}` | `{ok}` |
+| `POST /api/ordner` | – | Datenordner im Dateimanager öffnen |
+| `POST /api/beenden` | – | Programm beenden |
+
+POST-Anfragen müssen `Content-Type: application/json` haben und dürfen keinen
+fremden `Origin` mitschicken. Unbekannte Hostnamen werden abgelehnt (403). So
+kann eine fremde Webseite im selben Browser keine Druckaufträge auslösen. Für
+den Zugriff über einen Rechnernamen im Netz: `[server] erlaubte_namen`.
 | `POST /api/testdruck` | – | `{ok, meldung}` |
 
 `mhd` fehlt → wird berechnet. `menge` fehlt → 1.
