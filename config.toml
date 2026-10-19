@@ -16,15 +16,22 @@ name = "Citizen CL-S521"
 dpi = 203
 
 # Wie die ZPL-Daten zum Drucker kommen:
-#   "usb"  – direkt auf /dev/usb/lp*, ohne CUPS (Standard)
+#   "auto" – unter Windows "windows", sonst "usb" (Standard)
+#   "windows" – an einen unter Windows eingerichteten Drucker, unverändert (RAW)
+#   "usb"  – direkt auf /dev/usb/lp*, ohne CUPS (Linux)
 #   "cups" – über eine CUPS-Warteschlange im Raw-Modus (lp -o raw)
 #   "tcp"  – an einen Netzwerkdrucker (Port 9100)
 #   "datei" – nichts drucken, ZPL nur nach var/ausgabe/ schreiben (Trockenlauf)
-transport = "usb"
+transport = "auto"
 
 # usb: Gerätedatei. "auto" sucht das USB-Gerät, dessen Kennung usb_kennung enthält.
 usb_geraet = "auto"
 usb_kennung = "CITIZEN"
+
+# windows: Druckername wie unter Einstellungen → Drucker.
+# "auto" sucht den ersten Drucker, dessen Name windows_kennung enthält.
+windows_drucker = "auto"
+windows_kennung = "CITIZEN"
 
 # cups: Name der Warteschlange (lpstat -v)
 cups_warteschlange = "Citizen_CL_S521_raw"

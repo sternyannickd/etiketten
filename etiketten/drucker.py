@@ -15,6 +15,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -145,6 +146,136 @@ class CupsTransport:
         return aus.stdout.decode(errors="replace").strip() or "an CUPS übergeben"
 
 
+# --- Windows (Druckwarteschlange, Datentyp RAW) ---------------------------------
+
+ERROR_INVALID_DATATYPE = 1804
+WINDOWS_HINWEIS = ("Der Drucker muss unter Windows eingerichtet sein (Einstellungen → Bluetooth und "
+                   "Geräte → Drucker und Scanner). Name und Einrichtung: docs/INSTALLATION.md.")
+
+
+class _WinSpool:
+    """Dünne Hülle um winspool.drv (Windows-Druck-API), nur Standardbibliothek (ctypes)."""
+
+    def __init__(self):
+        if sys.platform != "win32":
+            raise DruckFehler("Der Druckweg 'windows' funktioniert nur unter Windows.")
+        import ctypes
+        from ctypes import wintypes
+
+        self.ctypes, self.wt = ctypes, wintypes
+        w = self.dll = ctypes.WinDLL("winspool.drv", use_last_error=True)
+
+        class PRINTER_INFO_4W(ctypes.Structure):
+            _fields_ = [("pPrinterName", wintypes.LPWSTR), ("pServerName", wintypes.LPWSTR),
+                        ("Attributes", wintypes.DWORD)]
+
+        class DOC_INFO_1W(ctypes.Structure):
+            _fields_ = [("pDocName", wintypes.LPWSTR), ("pOutputFile", wintypes.LPWSTR),
+                        ("pDatatype", wintypes.LPWSTR)]
+
+        self.PRINTER_INFO_4W, self.DOC_INFO_1W = PRINTER_INFO_4W, DOC_INFO_1W
+        h, dw, b = wintypes.HANDLE, wintypes.DWORD, wintypes.BOOL
+        for name, rueck, argumente in (
+            ("EnumPrintersW", b, [dw, wintypes.LPWSTR, dw, ctypes.c_void_p, dw,
+                                  ctypes.POINTER(dw), ctypes.POINTER(dw)]),
+            ("OpenPrinterW", b, [wintypes.LPWSTR, ctypes.POINTER(h), ctypes.c_void_p]),
+            ("StartDocPrinterW", dw, [h, dw, ctypes.POINTER(DOC_INFO_1W)]),
+            ("StartPagePrinter", b, [h]),
+            ("WritePrinter", b, [h, ctypes.c_void_p, dw, ctypes.POINTER(dw)]),
+            ("EndPagePrinter", b, [h]),
+            ("EndDocPrinter", b, [h]),
+            ("ClosePrinter", b, [h]),
+        ):
+            funktion = getattr(w, name)
+            funktion.restype, funktion.argtypes = rueck, argumente
+
+    def _fehler(self, was: str) -> DruckFehler:
+        code = self.ctypes.get_last_error()
+        text = self.ctypes.FormatError(code).strip()
+        if code == ERROR_INVALID_DATATYPE:
+            text += (" – der Druckertreiber nimmt keine Rohdaten an. Den Drucker stattdessen mit "
+                     "dem Treiber „Generic / Text Only“ einrichten (docs/INSTALLATION.md).")
+        return DruckFehler(f"{was}: {text} (Fehler {code})")
+
+    def drucker_namen(self) -> list[str]:
+        ct, wt = self.ctypes, self.wt
+        flags = 2 | 4  # PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS
+        benoetigt, anzahl = wt.DWORD(), wt.DWORD()
+        self.dll.EnumPrintersW(flags, None, 4, None, 0, ct.byref(benoetigt), ct.byref(anzahl))
+        if not benoetigt.value:
+            return []
+        puffer = ct.create_string_buffer(benoetigt.value)
+        if not self.dll.EnumPrintersW(flags, None, 4, puffer, benoetigt, ct.byref(benoetigt),
+                                      ct.byref(anzahl)):
+            raise self._fehler("Drucker auflisten")
+        eintraege = ct.cast(puffer, ct.POINTER(self.PRINTER_INFO_4W))
+        return [eintraege[i].pPrinterName for i in range(anzahl.value)]
+
+    def roh_drucken(self, name: str, daten: bytes) -> None:
+        ct, wt = self.ctypes, self.wt
+        h = wt.HANDLE()
+        if not self.dll.OpenPrinterW(name, ct.byref(h), None):
+            raise self._fehler(f"Drucker {name!r} öffnen")
+        try:
+            dokument = self.DOC_INFO_1W("Etikett", None, "RAW")
+            if not self.dll.StartDocPrinterW(h, 1, ct.byref(dokument)):
+                raise self._fehler("Druckauftrag starten")
+            try:
+                if not self.dll.StartPagePrinter(h):
+                    raise self._fehler("Seite starten")
+                geschrieben = wt.DWORD()
+                ok = self.dll.WritePrinter(h, daten, len(daten), ct.byref(geschrieben))
+                self.dll.EndPagePrinter(h)
+                if not ok or geschrieben.value != len(daten):
+                    raise self._fehler("Daten senden")
+            finally:
+                self.dll.EndDocPrinter(h)
+        finally:
+            self.dll.ClosePrinter(h)
+
+
+class WindowsTransport:
+    """Schickt die ZPL über die Windows-Druckwarteschlange als Datentyp RAW.
+
+    Windows reicht die Bytes dabei unverändert an den Drucker durch, der Treiber
+    rastert nichts (wie die CUPS-Raw-Warteschlange unter Linux).
+    """
+
+    def __init__(self, drucker: str = "auto", kennung: str = "CITIZEN", api=None):
+        self.drucker, self.kennung = drucker, kennung
+        self._api = api   # in Tests durch eine Attrappe ersetzbar
+
+    @property
+    def api(self):
+        if self._api is None:
+            self._api = _WinSpool()
+        return self._api
+
+    def finden(self) -> str:
+        namen = self.api.drucker_namen()
+        vorhanden = ", ".join(namen) or "keine"
+        if self.drucker and self.drucker != "auto":
+            if self.drucker in namen:
+                return self.drucker
+            raise DruckFehler(f"Windows-Drucker {self.drucker!r} nicht gefunden. Vorhanden: {vorhanden}.")
+        for name in namen:
+            if self.kennung.lower() in name.lower():
+                return name
+        raise DruckFehler(f"Kein Windows-Drucker mit {self.kennung!r} im Namen gefunden. "
+                          f"Vorhanden: {vorhanden}.")
+
+    def pruefen(self) -> Status:
+        try:
+            return Status(True, f"Windows-Drucker bereit: {self.finden()}")
+        except DruckFehler as e:
+            return Status(False, str(e), WINDOWS_HINWEIS)
+
+    def senden(self, daten: bytes) -> str:
+        name = self.finden()
+        self.api.roh_drucken(name, daten)
+        return f"an {name} gesendet"
+
+
 # --- Netzwerk (Port 9100) -----------------------------------------------------
 
 class TcpTransport:
@@ -190,7 +321,11 @@ class DateiTransport:
 
 def transport(konfig: Konfig):
     d = konfig["drucker"]
-    art = d.get("transport", "usb")
+    art = d.get("transport", "auto")
+    if art == "auto":
+        art = "windows" if sys.platform == "win32" else "usb"
+    if art == "windows":
+        return WindowsTransport(d.get("windows_drucker", "auto"), d.get("windows_kennung", "CITIZEN"))
     if art == "usb":
         return UsbTransport(d.get("usb_geraet", "auto"), d.get("usb_kennung", "CITIZEN"))
     if art == "cups":
@@ -199,4 +334,4 @@ def transport(konfig: Konfig):
         return TcpTransport(d.get("tcp_host", ""), d.get("tcp_port", 9100))
     if art == "datei":
         return DateiTransport(konfig.pfad("var/ausgabe"))
-    raise DruckFehler(f"Unbekannter Druckweg {art!r} (erlaubt: usb, cups, tcp, datei)")
+    raise DruckFehler(f"Unbekannter Druckweg {art!r} (erlaubt: auto, windows, usb, cups, tcp, datei)")

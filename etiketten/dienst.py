@@ -28,6 +28,7 @@ class Druckdienst:
     def __init__(self, konfig: Konfig):
         self.konfig = konfig
         self._sperre = threading.Lock()   # nie zwei Aufträge gleichzeitig an den Drucker
+        self._schreibsperre = threading.Lock()   # nie zwei Änderungen gleichzeitig an der Produktliste
 
     # --- Produkte -------------------------------------------------------------
 
@@ -40,6 +41,38 @@ class Druckdienst:
             if p.id == produkt_id:
                 return p
         raise EingabeFehler(f"Unbekanntes Produkt: {produkt_id!r}")
+
+    def produkt_speichern(self, daten: dict, alte_id: str | None = None) -> produkte.Produkt:
+        """Produkt anlegen (alte_id leer) oder ändern. Die id wird beim Anlegen aus dem Namen gebildet."""
+        with self._schreibsperre:
+            liste = self.produkte()
+            ids = {p.id for p in liste}
+            if alte_id and alte_id not in ids:
+                raise EingabeFehler(f"Unbekanntes Produkt: {alte_id!r}")
+            pid = alte_id or produkte.neue_id(str(daten.get("name") or ""), ids)
+            neu, fehler = produkte.pruefen(pid, str(daten.get("name") or ""),
+                                           str(daten.get("gtin") or ""), daten.get("mhd_monate"))
+            if fehler:
+                raise EingabeFehler(fehler)
+            doppelt = next((p for p in liste if p.gtin == neu.gtin and p.id != pid), None)
+            if doppelt:
+                raise EingabeFehler(f"Die EAN {neu.gtin} gehört schon zu „{doppelt.anzeigename}“")
+            if alte_id:
+                liste = [neu if p.id == alte_id else p for p in liste]
+            else:
+                liste.append(neu)
+            produkte.speichern(self.konfig.produkte_pfad, liste)
+            return neu
+
+    def produkt_loeschen(self, produkt_id: str) -> None:
+        with self._schreibsperre:
+            liste = self.produkte()
+            rest = [p for p in liste if p.id != produkt_id]
+            if len(rest) == len(liste):
+                raise EingabeFehler(f"Unbekanntes Produkt: {produkt_id!r}")
+            if not rest:
+                raise EingabeFehler("Das letzte Produkt kann nicht gelöscht werden")
+            produkte.speichern(self.konfig.produkte_pfad, rest)
 
     def mhd_vorschlag(self, produkt_id: str, abpackdatum: date | None = None) -> date:
         return mhd.berechnen(abpackdatum or date.today(), self.produkt(produkt_id).mhd_monate)

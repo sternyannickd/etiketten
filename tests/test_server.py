@@ -72,6 +72,33 @@ class ServerTest(unittest.TestCase):
         status, _, _ = self.anfrage("/api/vorschau", {"produkt": "kolumbien"})
         self.assertEqual(status, 502)
 
+    def test_produkt_anlegen_aendern_loeschen(self):
+        status, _, inhalt = self.anfrage("/api/produkt/speichern",
+                                         {"name": "Neu|Test", "gtin": "4006381333931", "mhd_monate": 6})
+        self.assertEqual(status, 200, inhalt)
+        neu = json.loads(inhalt)["produkt"]
+        self.assertEqual((neu["id"], neu["name"], neu["etikett_name"]), ("neu-test", "Neu Test", "Neu|Test"))
+        status, _, _ = self.anfrage("/api/produkt/speichern", {"alte_id": "neu-test", "name": "Neu",
+                                                                "gtin": "4006381333931", "mhd_monate": 7})
+        self.assertEqual(status, 200)
+        status, _, inhalt = self.anfrage("/api/produkt/speichern",
+                                         {"name": "Falsch", "gtin": "4006381333932", "mhd_monate": 6})
+        self.assertEqual(status, 400)
+        self.assertIn("Prüfziffer", json.loads(inhalt)["fehler"])
+        status, _, _ = self.anfrage("/api/produkt/loeschen", {"id": "neu-test"})
+        self.assertEqual(status, 200)
+        _, _, inhalt = self.anfrage("/api/produkte")
+        self.assertNotIn("neu-test", [p["id"] for p in json.loads(inhalt)])
+
+    def test_status_nennt_version_und_datenordner(self):
+        _, _, inhalt = self.anfrage("/api/status")
+        daten = json.loads(inhalt)
+        self.assertIn("version", daten)
+        self.assertEqual(daten["daten_ordner"], str(self.konfig.basis_dir))
+
+    def test_laeuft_schon(self):
+        self.assertTrue(server.laeuft_schon(self.httpd.server_port))
+
     # --- Schutz gegen fremde Webseiten -------------------------------------------
 
     def test_formular_ohne_json_wird_abgelehnt(self):

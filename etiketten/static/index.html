@@ -20,6 +20,10 @@
       <h2><span class="nr">1</span> Produkt</h2>
       <div id="produkte" class="kacheln" role="radiogroup" aria-label="Produkt"></div>
       <p id="produkte-fehler" class="fehler" hidden></p>
+      <div class="produkt-aktionen">
+        <button id="produkt-neu" class="knopf" type="button">+ Neues Produkt</button>
+        <button id="produkt-bearbeiten" class="knopf" type="button" hidden>Gewähltes Produkt bearbeiten</button>
+      </div>
     </section>
 
     <section class="karte">
@@ -60,9 +64,36 @@
         <button id="testdruck" type="button">Testetikett drucken (Kalibrierung &amp; Umlaute)</button>
         <button id="zpl-zeigen" type="button">ZPL anzeigen</button>
         <pre id="zpl" hidden></pre>
+        <button id="ordner" type="button">Datenordner öffnen (Produktliste, Protokoll, Einstellungen)</button>
+        <button id="beenden" type="button">Programm beenden</button>
+        <p id="version" class="leise"></p>
       </details>
     </section>
   </main>
+
+  <dialog id="produkt-dialog" class="dialog">
+    <form id="produkt-form" method="dialog" novalidate>
+      <h2 id="produkt-titel">Neues Produkt</h2>
+      <label><span>Name auf dem Etikett</span>
+        <input id="p-name" maxlength="80" required autocomplete="off" placeholder="z. B. Espresso|Guatemala">
+        <small>Mit | einen Zeilenumbruch erzwingen, sonst bricht das Programm selbst um (max. 2 Zeilen).</small>
+      </label>
+      <label><span>EAN (13 Ziffern)</span>
+        <input id="p-gtin" inputmode="numeric" maxlength="13" required autocomplete="off" placeholder="2064000002134">
+        <small id="p-gtin-hinweis">Die letzte Ziffer ist die Prüfziffer – Tippfehler fallen sofort auf.</small>
+      </label>
+      <label><span>Haltbarkeit in Monaten (für das MHD)</span>
+        <input id="p-monate" type="number" min="1" max="60" value="12" inputmode="numeric" required>
+      </label>
+      <p id="p-fehler" class="fehler" hidden></p>
+      <div class="dialog-knoepfe">
+        <button id="p-loeschen" class="knopf knopf--gefahr" type="button" hidden>Löschen</button>
+        <span class="platz"></span>
+        <button id="p-abbrechen" class="knopf" type="button">Abbrechen</button>
+        <button id="p-speichern" class="knopf knopf--haupt" type="submit">Speichern</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="/static/app.js"></script>
 </body>

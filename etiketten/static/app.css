@@ -162,6 +162,33 @@ input {
   overflow-x: auto; font-size: .8rem;
 }
 
+.produkt-aktionen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.knopf {
+  font: inherit; font-size: .95rem; padding: 8px 14px;
+  border: 1px solid var(--linie); background: #fff; color: var(--text);
+  border-radius: 8px; cursor: pointer;
+}
+.knopf:hover { border-color: var(--akzent); }
+.knopf--haupt { background: var(--akzent); border-color: var(--akzent); color: #fff; }
+.knopf--gefahr { color: var(--schlecht); }
+.knopf--gefahr:hover { border-color: var(--schlecht); }
+.leise { color: var(--leise); font-size: .85rem; margin: 10px 0 0; }
+
+.dialog {
+  border: 1px solid var(--linie); border-radius: 12px; padding: 20px;
+  width: min(480px, calc(100vw - 32px)); background: var(--karte); color: var(--text);
+}
+.dialog::backdrop { background: rgba(42, 36, 32, .45); }
+.dialog form { display: flex; flex-direction: column; gap: 14px; }
+.dialog h2 { margin: 0; }
+.dialog small { font-size: .8rem; }
+.dialog input { font-size: 1.05rem; }
+.dialog input[aria-invalid="true"] { border-color: var(--schlecht); }
+#p-gtin-hinweis.gut { color: var(--gut); }
+#p-gtin-hinweis.schlecht { color: var(--schlecht); }
+.dialog-knoepfe { display: flex; gap: 8px; align-items: center; }
+.dialog-knoepfe .platz { flex: 1; }
+
 @media (max-width: 800px) {
   body { padding: 12px; }
   .raster { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "produkt" "datum" "druck"; }
