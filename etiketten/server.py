@@ -8,12 +8,18 @@ API (alle Antworten JSON, außer /api/vorschau = PNG):
   POST /api/vorschau  {produkt, mhd?, menge?}  → image/png
   POST /api/drucken   {produkt, mhd?, menge?}  → {ok, meldung}
   POST /api/testdruck                      Kalibrier-/Testetikett
+
+Schutz gegen fremde Webseiten im selben Browser: POST nur mit
+Content-Type application/json und ohne fremden Origin, und nur unter einem
+bekannten Hostnamen (gegen DNS-Rebinding). Siehe _anfrage_erlaubt().
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import mimetypes
+import socket
 import sys
 from datetime import date
 from http import HTTPStatus
@@ -46,7 +52,37 @@ def _menge(wert) -> int:
     return menge
 
 
+def _hostname(host_kopf: str) -> str:
+    """Hostname ohne Port aus dem Host-Header, z. B. "[::1]:8077" → "::1"."""
+    host = host_kopf.strip().lower()
+    if host.startswith("["):
+        return host[1:].partition("]")[0]
+    return host.rpartition(":")[0] if host.count(":") == 1 else host
+
+
+def _host_erlaubt(host_kopf: str, erlaubte_namen) -> bool:
+    """IP-Adressen, localhost, der eigene Rechnername und erlaubte_namen aus der Konfiguration.
+
+    Andere Namen werden abgelehnt: Sonst könnte eine fremde Domain per
+    DNS-Rebinding auf 127.0.0.1 zeigen und als "gleiche Herkunft" gelten.
+    """
+    name = _hostname(host_kopf)
+    if not name:
+        return False
+    try:
+        ipaddress.ip_address(name)
+        return True
+    except ValueError:
+        pass
+    rechner = socket.gethostname().lower()
+    bekannt = {"localhost", rechner, f"{rechner}.local", *(n.lower() for n in erlaubte_namen)}
+    return name in bekannt
+
+
 def handler_fuer(dienst: Druckdienst):
+    erlaubte_namen = dienst.konfig["server"].get("erlaubte_namen", [])
+
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "Etiketten/1"
 
@@ -84,6 +120,29 @@ def handler_fuer(dienst: Druckdienst):
                 raise EingabeFehler("Anfrage muss ein JSON-Objekt sein")
             return daten
 
+        def _anfrage_erlaubt(self, post: bool) -> bool:
+            """Lehnt Anfragen ab, die eine fremde Webseite im Browser auslösen könnte.
+
+            Sendet die Antwort bei Ablehnung selbst.
+            """
+            host = self.headers.get("Host", "")
+            if not _host_erlaubt(host, erlaubte_namen):
+                self._fehler(403, f"Unbekannter Hostname {host!r} (siehe erlaubte_namen in config.toml)")
+                return False
+            if not post:
+                return True
+            origin = self.headers.get("Origin")
+            if origin is not None and urlparse(origin).netloc.lower() != host.lower():
+                self._fehler(403, "Anfrage von fremder Seite abgelehnt")
+                return False
+            typ = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            if typ != "application/json":
+                # Fremde Seiten können ohne Rückfrage des Browsers nur Formulare
+                # bzw. text/plain senden – application/json nicht.
+                self._fehler(415, "Content-Type muss application/json sein")
+                return False
+            return True
+
         def _auftrag(self) -> tuple[str, date | None, int]:
             daten = self._body()
             produkt = str(daten.get("produkt") or "")
@@ -94,6 +153,8 @@ def handler_fuer(dienst: Druckdienst):
         # --- Routen ------------------------------------------------------------
 
         def do_GET(self):
+            if not self._anfrage_erlaubt(post=False):
+                return
             url = urlparse(self.path)
             try:
                 if url.path == "/api/status":
@@ -115,6 +176,8 @@ def handler_fuer(dienst: Druckdienst):
                 return self._fehler(400, str(e))
 
         def do_POST(self):
+            if not self._anfrage_erlaubt(post=True):
+                return
             pfad = urlparse(self.path).path
             try:
                 if pfad == "/api/zpl":

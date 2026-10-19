@@ -1,5 +1,13 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- **Sicherheit:** Eine fremde Webseite, die im Browser am Druckrechner geöffnet
+  ist, konnte unbemerkt Druckaufträge an `localhost:8077` schicken. Der Server
+  nimmt POST jetzt nur noch als `application/json` und ohne fremden `Origin` an
+  und lehnt unbekannte Hostnamen ab (Schutz gegen DNS-Rebinding). Neue Option
+  `[server] erlaubte_namen` für den Zugriff über einen Rechnernamen im Netz.
+
 ## 0.2.0 – 2026-10-07
 
 Erste am echten Drucker getestete Version, im Betrieb einsetzbar.

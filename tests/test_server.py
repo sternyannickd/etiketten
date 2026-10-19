@@ -26,10 +26,10 @@ class ServerTest(unittest.TestCase):
         cls.httpd.shutdown()
         cls.httpd.server_close()
 
-    def anfrage(self, pfad, daten=None):
-        body = None if daten is None else json.dumps(daten).encode()
+    def anfrage(self, pfad, daten=None, kopf=None, roh=None):
+        body = roh if roh is not None else (None if daten is None else json.dumps(daten).encode())
         req = urllib.request.Request(self.basis + pfad, data=body,
-                                     headers={"Content-Type": "application/json"})
+                                     headers={"Content-Type": "application/json", **(kopf or {})})
         try:
             with urllib.request.urlopen(req, timeout=5) as r:
                 return r.status, r.headers.get("Content-Type"), r.read()
@@ -71,6 +71,47 @@ class ServerTest(unittest.TestCase):
     def test_vorschau_aus_gibt_502_druck_bleibt_moeglich(self):
         status, _, _ = self.anfrage("/api/vorschau", {"produkt": "kolumbien"})
         self.assertEqual(status, 502)
+
+    # --- Schutz gegen fremde Webseiten -------------------------------------------
+
+    def test_formular_ohne_json_wird_abgelehnt(self):
+        # So sähe ein unsichtbares Formular auf einer fremden Seite aus
+        status, _, _ = self.anfrage("/api/drucken", kopf={"Content-Type": "text/plain"},
+                                    roh=b'{"produkt": "kolumbien", "menge": 999}')
+        self.assertEqual(status, 415)
+
+    def test_fremder_origin_wird_abgelehnt(self):
+        for origin in ("https://boese.example", "null"):
+            status, _, _ = self.anfrage("/api/drucken", {"produkt": "kolumbien"},
+                                        kopf={"Origin": origin})
+            self.assertEqual(status, 403, origin)
+
+    def test_eigener_origin_ist_erlaubt(self):
+        status, _, _ = self.anfrage("/api/drucken", {"produkt": "kolumbien"},
+                                    kopf={"Origin": self.basis})
+        self.assertEqual(status, 200)
+
+    def test_fremder_hostname_wird_abgelehnt(self):
+        # DNS-Rebinding: fremde Domain zeigt auf 127.0.0.1
+        port = self.httpd.server_port
+        for pfad, daten in (("/api/produkte", None), ("/api/drucken", {"produkt": "kolumbien"})):
+            status, _, _ = self.anfrage(pfad, daten, kopf={"Host": f"boese.example:{port}"})
+            self.assertEqual(status, 403, pfad)
+        status, _, _ = self.anfrage("/api/produkte", kopf={"Host": f"localhost:{port}"})
+        self.assertEqual(status, 200)
+
+
+class HostnameTest(unittest.TestCase):
+    def test_hostname(self):
+        self.assertEqual(server._hostname("[::1]:8077"), "::1")
+        self.assertEqual(server._hostname("Localhost:8077"), "localhost")
+        self.assertEqual(server._hostname("192.168.1.5"), "192.168.1.5")
+
+    def test_erlaubt(self):
+        self.assertTrue(server._host_erlaubt("192.168.1.5:8077", []))
+        self.assertTrue(server._host_erlaubt("etiketten.fritz.box:8077", ["etiketten.fritz.box"]))
+        self.assertFalse(server._host_erlaubt("boese.example", []))
+        self.assertFalse(server._host_erlaubt("", []))
 
 
 if __name__ == "__main__":
