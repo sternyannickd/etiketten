@@ -8,7 +8,8 @@ protokoll = "var/druckprotokoll.csv"   # leer ("") = kein Protokoll
 host = "127.0.0.1"   # "0.0.0.0" = auch von anderen Geräten im Netz erreichbar
 port = 8077
 # Bei host = "0.0.0.0": Rechnernamen, unter denen andere Geräte die Seite aufrufen.
-# IP-Adressen, localhost und der eigene Rechnername sind immer erlaubt.
+# IP-Adressen, localhost und der eigene Rechnername (auch kurz und mit .local)
+# sind immer erlaubt.
 # erlaubte_namen = ["etiketten.fritz.box"]
 
 [drucker]

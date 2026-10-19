@@ -73,6 +73,25 @@ alles, was im lokalen `config.toml` eines Rechners ausdrücklich anders gesetzt 
 **Was nicht ankommt:** Änderungen an `data/produkte.csv` im Repo. Die gelten nur
 für Neuinstallationen. Ein bestehender Rechner pflegt seine Produkte selbst.
 
+## Im Netz freigeben
+
+Voreingestellt ist das Programm nur auf dem eigenen Rechner erreichbar. Für
+andere PCs im Netz in die eigene `config.toml` (Werkzeuge → Datenordner öffnen)
+eintragen und das Programm neu starten:
+
+```toml
+[server]
+host = "0.0.0.0"
+```
+
+Dann von anderen PCs `http://<IP-Adresse>:8077` oder `http://<Rechnername>:8077`
+bzw. `http://<Rechnername>.local:8077` aufrufen. Andere Namen, etwa einen
+DNS-Namen im Router, unter `erlaubte_namen = ["…"]` ergänzen. Gedruckt wird
+immer auf dem Drucker am Rechner, auf dem das Programm läuft.
+
+**Achtung:** Es gibt keine Anmeldung. Jeder im Netz kann dann drucken, Produkte
+ändern und das Programm beenden.
+
 ## Deinstallieren
 
 - **Windows:** Einstellungen → Apps → Etikettendruck → Deinstallieren.
