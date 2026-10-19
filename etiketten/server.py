@@ -74,9 +74,17 @@ def _host_erlaubt(host_kopf: str, erlaubte_namen) -> bool:
         return True
     except ValueError:
         pass
-    rechner = socket.gethostname().lower()
-    bekannt = {"localhost", rechner, f"{rechner}.local", *(n.lower() for n in erlaubte_namen)}
-    return name in bekannt
+    return name in {"localhost", *rechnernamen(), *(n.lower() for n in erlaubte_namen)}
+
+
+def rechnernamen() -> set[str]:
+    """Namen dieses Rechners, voll und kurz, jeweils auch mit .local (Avahi/Bonjour).
+
+    Beispiel "mint-test.server.lan" → mint-test.server.lan, mint-test, mint-test.local …
+    """
+    voll = socket.gethostname().lower()
+    kurz = voll.split(".")[0]
+    return {voll, kurz, f"{voll}.local", f"{kurz}.local"}
 
 
 def handler_fuer(dienst: Druckdienst):

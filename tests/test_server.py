@@ -3,6 +3,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from unittest import mock
 from http.server import ThreadingHTTPServer
 
 from etiketten import server
@@ -112,6 +113,12 @@ class HostnameTest(unittest.TestCase):
         self.assertTrue(server._host_erlaubt("etiketten.fritz.box:8077", ["etiketten.fritz.box"]))
         self.assertFalse(server._host_erlaubt("boese.example", []))
         self.assertFalse(server._host_erlaubt("", []))
+
+    def test_rechnername_kurz_und_lang(self):
+        with mock.patch.object(server.socket, "gethostname", return_value="Mint-Test.server.lan"):
+            for host in ("mint-test:8077", "mint-test.local:8077", "mint-test.server.lan:8077"):
+                self.assertTrue(server._host_erlaubt(host, []), host)
+            self.assertFalse(server._host_erlaubt("anderer-pc.local:8077", []))
 
 
 if __name__ == "__main__":
