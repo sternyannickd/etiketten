@@ -132,7 +132,7 @@ nutzt die Gruppe sofort. Alles Weitere steht in [DRUCKER.md](DRUCKER.md).
 ## Für Entwickler: wie die Installer entstehen
 
 Nach jedem Push auf `main` oder `installer`, der Programmcode, `config.toml`,
-`data/` oder `packaging/` ändert, läuft
+`data/`, `packaging/` oder `tests/` ändert, läuft
 [`.github/workflows/installer.yml`](../.github/workflows/installer.yml):
 
 1. Die Tests laufen unter Linux und Windows.

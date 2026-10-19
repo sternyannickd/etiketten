@@ -15,6 +15,7 @@ on:
       - "data/**"
       - "config.toml"
       - "packaging/**"
+      - "tests/**"
       - ".github/workflows/installer.yml"
   workflow_dispatch:
 
