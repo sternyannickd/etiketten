@@ -15,7 +15,7 @@ STANDARD: dict = {
     "produkte": "data/produkte.json",
     "produkte_bearbeiten": True,
     "protokoll": "var/druckprotokoll.csv",
-    "server": {"host": "127.0.0.1", "port": 8077},
+    "server": {"host": "127.0.0.1", "port": 8077, "erlaubte_namen": []},
     "drucker": {
         "name": "Citizen CL-S521",
         "dpi": 203,

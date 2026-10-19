@@ -10,6 +10,10 @@ protokoll = "var/druckprotokoll.csv"   # leer ("") = kein Protokoll
 [server]
 host = "127.0.0.1"   # "0.0.0.0" = auch von anderen Geräten im Netz erreichbar
 port = 8077
+# Bei host = "0.0.0.0" oder hinter tosto: Rechner- bzw. Portalnamen, unter denen
+# die Seite im Browser aufgerufen wird (sonst lehnt der Server Anfragen ab, 403).
+# IP-Adressen, localhost und der eigene Rechnername sind immer erlaubt.
+# erlaubte_namen = ["etiketten.fritz.box"]
 
 [drucker]
 name = "Citizen CL-S521"

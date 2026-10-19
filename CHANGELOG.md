@@ -2,6 +2,12 @@
 
 ## Unveröffentlicht
 
+- **Sicherheit:** Eine fremde Webseite, die im Browser am Druckrechner geöffnet
+  ist, konnte unbemerkt Druckaufträge an `localhost:8077` schicken. Der Server
+  nimmt POST/PUT jetzt nur noch als `application/json` und ohne fremden `Origin`
+  an und lehnt unbekannte Hostnamen ab (Schutz gegen DNS-Rebinding). Neue Option
+  `[server] erlaubte_namen`: dort den Rechnernamen im Netz bzw. **den Namen des
+  Portals tosto** eintragen, wenn labels hinter tosto läuft.
 - Name der App: **Etiketta**. Kopfzeile der lokalen Seiten mit „Edeka Etiketten“ (`/`)
   und „Probeetikett Verpackung“ (`/verpackung`).
 - Erster Druck auf dem Drucker für Verpackungsetiketten (100 × 150 mm): Testetikett

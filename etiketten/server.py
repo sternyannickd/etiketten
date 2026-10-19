@@ -17,12 +17,20 @@ Verpackungsetikett (zweite Etikettenart, Oberfläche /verpackung):
   POST /api/verpackung/vorschau  {kaffee, charge, mhd?, stil?}          → image/png
   POST /api/verpackung/drucken   {kaffee, charge, mhd?, menge?, stil?}  → {ok, meldung}
   POST /api/verpackung/testdruck
+
+Schutz gegen fremde Webseiten im selben Browser: POST/PUT nur mit
+Content-Type application/json und ohne fremden Origin, und nur unter einem
+bekannten Hostnamen (gegen DNS-Rebinding). Siehe _anfrage_erlaubt().
+Hinter einem Proxy (tosto) den Namen des Portals unter
+[server] erlaubte_namen eintragen.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import mimetypes
+import socket
 import sys
 from datetime import date
 from http import HTTPStatus
@@ -91,9 +99,56 @@ def einschuebe(rahmen: Path | None, entwickler: bool) -> dict[bytes, bytes]:
     return {b"<!--rahmen-->": kopf.encode(), b"<!--entwicklermodus-->": band.encode()}
 
 
+def _hostname(host_kopf: str) -> str:
+    """Hostname ohne Port aus dem Host-Header, z. B. "[::1]:8077" → "::1"."""
+    host = host_kopf.strip().lower()
+    if host.startswith("["):
+        return host[1:].partition("]")[0]
+    return host.rpartition(":")[0] if host.count(":") == 1 else host
+
+
+def _bekannte_namen(erlaubte_namen) -> set[str]:
+    rechner = socket.gethostname().lower()
+    return {"localhost", "127.0.0.1", "::1", rechner, f"{rechner}.local",
+            *(n.lower() for n in erlaubte_namen)}
+
+
+def _host_erlaubt(host_kopf: str, erlaubte_namen) -> bool:
+    """IP-Adressen, localhost, der eigene Rechnername und erlaubte_namen aus der Konfiguration.
+
+    Andere Namen werden abgelehnt: Sonst könnte eine fremde Domain per
+    DNS-Rebinding auf 127.0.0.1 zeigen und als "gleiche Herkunft" gelten.
+    """
+    name = _hostname(host_kopf)
+    if not name:
+        return False
+    try:
+        ipaddress.ip_address(name)
+        return True
+    except ValueError:
+        pass
+    return name in _bekannte_namen(erlaubte_namen)
+
+
+def _origin_erlaubt(origin: str | None, host_kopf: str, erlaubte_namen) -> bool:
+    """Ohne Origin (Kommandozeile, curl) oder gleiche Herkunft: erlaubt.
+
+    Hinter einem Proxy (tosto) unterscheiden sich Origin und Host; dann muss der
+    Name aus dem Origin bekannt sein (localhost, Rechnername, erlaubte_namen).
+    Beliebige IP-Adressen gelten hier bewusst nicht.
+    """
+    if origin is None:
+        return True
+    netloc = urlparse(origin).netloc.lower()
+    if netloc and netloc == host_kopf.strip().lower():
+        return True
+    return bool(netloc) and _hostname(netloc) in _bekannte_namen(erlaubte_namen)
+
+
 def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bool = False):
     """`rahmen`: Ordner mit dem tosto-Rahmen (theme.css), `entwickler`: Hinweisband zeigen."""
     ersetzen = einschuebe(rahmen, entwickler)
+    erlaubte_namen = dienst.konfig["server"].get("erlaubte_namen", [])
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "Etiketten/1"
@@ -132,6 +187,28 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
                 raise EingabeFehler("Anfrage muss ein JSON-Objekt sein")
             return daten
 
+        def _anfrage_erlaubt(self, schreibend: bool) -> bool:
+            """Lehnt Anfragen ab, die eine fremde Webseite im Browser auslösen könnte.
+
+            Sendet die Antwort bei Ablehnung selbst.
+            """
+            host = self.headers.get("Host", "")
+            if not _host_erlaubt(host, erlaubte_namen):
+                self._fehler(403, f"Unbekannter Hostname {host!r} (siehe erlaubte_namen in config.toml)")
+                return False
+            if not schreibend:
+                return True
+            if not _origin_erlaubt(self.headers.get("Origin"), host, erlaubte_namen):
+                self._fehler(403, "Anfrage von fremder Seite abgelehnt (siehe erlaubte_namen in config.toml)")
+                return False
+            typ = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            if typ != "application/json":
+                # Fremde Seiten können ohne Rückfrage des Browsers nur Formulare
+                # bzw. text/plain senden – application/json nicht.
+                self._fehler(415, "Content-Type muss application/json sein")
+                return False
+            return True
+
         def _auftrag(self) -> tuple[str, str | None, date | None, int]:
             daten = self._body()
             kaffee = str(daten.get("kaffee") or "")
@@ -154,6 +231,8 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
         # --- Routen ------------------------------------------------------------
 
         def do_GET(self):
+            if not self._anfrage_erlaubt(schreibend=False):
+                return
             url = urlparse(self.path)
             try:
                 if url.path == "/api/status":
@@ -173,6 +252,8 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
                 return self._fehler(400, str(e))
 
         def do_POST(self):
+            if not self._anfrage_erlaubt(schreibend=True):
+                return
             pfad = urlparse(self.path).path
             try:
                 if pfad == "/api/zpl":
@@ -215,6 +296,8 @@ def handler_fuer(dienst: Druckdienst, rahmen: Path | None = None, entwickler: bo
                 return self._fehler(503, str(e))
 
         def do_PUT(self):
+            if not self._anfrage_erlaubt(schreibend=True):
+                return
             pfad = urlparse(self.path).path
             try:
                 if pfad.startswith("/api/kaffees/"):
