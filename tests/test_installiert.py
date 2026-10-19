@@ -11,7 +11,8 @@ from etiketten import config, produkte
 
 class InstalliertTest(unittest.TestCase):
     def setUp(self):
-        self.ordner = Path(tempfile.mkdtemp(prefix="etiketten-daten-")) / "Etikettendruck"
+        # resolve(): Windows kürzt Temp-Pfade sonst als 8.3-Namen ab (RUNNER~1)
+        self.ordner = Path(tempfile.mkdtemp(prefix="etiketten-daten-")).resolve() / "Etikettendruck"
 
     def laden(self):
         return config.laden_installiert(self.ordner)
