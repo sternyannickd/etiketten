@@ -107,10 +107,18 @@ def _hostname(host_kopf: str) -> str:
     return host.rpartition(":")[0] if host.count(":") == 1 else host
 
 
+def rechnernamen() -> set[str]:
+    """Namen dieses Rechners, voll und kurz, jeweils auch mit .local (Avahi/Bonjour).
+
+    Beispiel "mint-test.server.lan" → mint-test.server.lan, mint-test, mint-test.local …
+    """
+    voll = socket.gethostname().lower()
+    kurz = voll.split(".")[0]
+    return {voll, kurz, f"{voll}.local", f"{kurz}.local"}
+
+
 def _bekannte_namen(erlaubte_namen) -> set[str]:
-    rechner = socket.gethostname().lower()
-    return {"localhost", "127.0.0.1", "::1", rechner, f"{rechner}.local",
-            *(n.lower() for n in erlaubte_namen)}
+    return {"localhost", "127.0.0.1", "::1", *rechnernamen(), *(n.lower() for n in erlaubte_namen)}
 
 
 def _host_erlaubt(host_kopf: str, erlaubte_namen) -> bool:

@@ -3,6 +3,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from unittest import mock
 from http.server import ThreadingHTTPServer
 
 from etiketten import server
@@ -143,6 +144,12 @@ class HostnameTest(unittest.TestCase):
         self.assertTrue(server._host_erlaubt("192.168.1.5:8077", []))
         self.assertTrue(server._host_erlaubt("tosto.firma.de", ["tosto.firma.de"]))
         self.assertFalse(server._host_erlaubt("boese.example", []))
+
+    def test_rechnername_kurz_und_lang(self):
+        with mock.patch.object(server.socket, "gethostname", return_value="Mint-Test.server.lan"):
+            for host in ("mint-test:8077", "mint-test.local:8077", "mint-test.server.lan:8077"):
+                self.assertTrue(server._host_erlaubt(host, []), host)
+            self.assertFalse(server._host_erlaubt("anderer-pc.local:8077", []))
 
     def test_origin_hinter_proxy(self):
         # tosto reicht an 127.0.0.1:8077 weiter, der Browser schickt den Portal-Origin
