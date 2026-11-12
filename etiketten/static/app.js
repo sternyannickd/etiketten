@@ -293,7 +293,8 @@ async function drucken() {
     meldung(e.message, "fehler");
     statusLaden();
   } finally {
-    knopf.classList.remove("laeuft");
+    // Kurz gesperrt lassen: ein Doppelklick würde sonst den ganzen Auftrag zweimal drucken.
+    setTimeout(() => knopf.classList.remove("laeuft"), 2000);
   }
 }
 
