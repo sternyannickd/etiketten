@@ -105,3 +105,67 @@ Dann gehen die Daten an Port 9100, ohne Treiber und auf jedem Betriebssystem gle
 | Etikett verschoben | Abschnitt 4, Versatz |
 | Vorschau „nicht verfügbar“ | Kein Internet oder labelary.com nicht erreichbar. Drucken geht trotzdem. Abschalten mit `[vorschau] aktiv = false`. |
 | „Server konnte nicht starten … Address already in use“ | Programm läuft schon (Browser auf http://localhost:8077), oder `--port` ändern |
+| Zwei Aufträge auf einem Etikett, Drucker zieht das Etikett zurück und druckt Unsinn | Etikettensensor erkennt die Lücke nicht, siehe Abschnitt 7 |
+
+## 7. Etikettensensor (Lücke wird nicht erkannt)
+
+**Erfahrung vom 12.11.2026.** Zuerst lief alles normal, dann kamen Aufträge nur noch
+teilweise richtig heraus. Der Drucker zog das Etikett zurück und druckte darüber,
+sodass zwei Aufträge auf einem Etikett landeten (z. B. Kolumbien + Nicaragua). Das
+betraf alle Sorten gleich. Der ZPL-Code war bei allen Sorten korrekt.
+
+Ursache ist der Sensor des Druckers. Im Abreißmodus (`Function Select: Tear`) schiebt
+der Drucker nach jedem Auftrag vor und vor dem nächsten wieder zurück. Dabei muss er
+jedes Mal die Lücke finden. Gelingt das nicht, druckt er an der falschen Stelle.
+Ein einzelner Auftrag mit mehreren Etiketten (`^PQ`) ist weniger anfällig, aber nicht
+sicher.
+
+**Diagnose vom Rechner aus** (Antwort kommt über dieselbe USB-Gerätedatei):
+
+```sh
+python3 - <<'PY'
+import os, time
+fd = os.open("/dev/usb/lp2", os.O_RDWR | os.O_NONBLOCK)
+os.write(fd, b"~HS\r\n^XA^HH^XZ\r\n")   # Status + Konfiguration
+time.sleep(3); print(os.read(fd, 16384).decode("latin1"))
+PY
+```
+
+Wichtig sind `Media Sensor`, `Sensor Level` (Schaltschwelle) und `Sensor Monitor`
+(aktueller Messwert). Gemessen wurde **0,70–0,77 V bei einer Schwelle von 0,7 V**. Der
+Sensor sah also kaum einen Unterschied zwischen Etikett und Lücke. `~JC`
+(Zebra-Kalibrierung) wird vom CL-S521 ignoriert.
+
+**Die Etiketten haben schwarze Markierungen auf dem Trägerpapier.** Es gibt zwei
+Sensorarten:
+
+- **See Through (Durchlicht, Werkseinstellung):** misst die Lücke. Der Sensor muss
+  **mittig unter dem Etikett** sitzen, **nicht auf der Spur der schwarzen Striche**.
+  Diese blockieren das Licht und verwirren den Sensor.
+- **Reflect (Reflex):** misst die schwarzen Striche. Die weiße Markierung des unteren
+  Sensors muss **mittig auf der Spur der schwarzen Striche** liegen.
+
+In beiden Fällen müssen die weißen Markierungen von oberem und unterem Sensor
+übereinander stehen (Ausrichtung über die bewegliche Papierführung).
+
+**Kalibrieren am Drucker** (Handbuch CL-S521, Kapitel 3, S. 39–41):
+
+1. Einschalten mit **PAUSE + FEED + STOP** gedrückt, loslassen, wenn PRINT und
+   CONDITION leuchten.
+2. Sensorart prüfen: PRINT-LED **dauerhaft an = See Through**, **langsam blinkend =
+   Reflect**. Umschalten mit **MODE/REPEAT halten + STOP**. Vorsicht, das passiert
+   auch leicht aus Versehen.
+3. Papier:
+   - See Through: nur **Trägerpapier** (ca. 20 cm Etiketten abziehen). Weder Lücke
+     noch schwarzer Strich darf beim Einlauf am Sensor vorbeikommen.
+   - Reflect: normale Rolle. Über dem Sensor liegt weder Strich noch Lücke.
+4. **MODE/REPEAT halten + PAUSE** drücken, das Papier läuft.
+5. LEDs wieder normal = erfolgreich, mit **STOP** speichern. **CONDITION und ERROR
+   blinken = „adjustment impossible“**: Sensorposition und Papier prüfen.
+6. Probe: **FEED** muss genau ein Etikett vorschieben.
+
+Falls die automatische Einstellung nie gelingt, nennt das Handbuch (S. 46) als letzten
+Weg, den `Sensor Level` im Menü „System Setup“ von Hand zu setzen.
+
+**Stand 12.11.2026: noch nicht gelöst.** Zuletzt stand der Drucker auf `Reflect`
+(Schwelle 1,5 V, Messwert 2,95 V). Die Kalibrierung lief nicht fehlerfrei.

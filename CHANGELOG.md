@@ -1,5 +1,12 @@
 # Änderungen
 
+## Unveröffentlicht
+
+- **Doppelklick auf „Drucken“ druckte den Auftrag zweimal.** Die Sperre des Knopfs
+  endete, sobald der Drucker den Auftrag angenommen hatte, also nach Bruchteilen
+  einer Sekunde. Der Knopf bleibt jetzt nach jedem Druck 2 Sekunden gesperrt.
+- Doku: Fehlersuche Etikettensensor (`docs/DRUCKER.md`, Abschnitt 7).
+
 ## 0.3.0 – 2026-10-19
 
 Fertiges Programm mit Installer für Windows und Linux.

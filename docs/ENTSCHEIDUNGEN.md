@@ -51,6 +51,12 @@ Stand nach dem ersten Test am echten Drucker (06.10.2026).
 
 **Noch offen:**
 
+0. **Etikettensensor (seit 12.11.2026, dringend):** Der Drucker erkennt die Lücke
+   bzw. den schwarzen Strich nicht zuverlässig. Dadurch landen Aufträge auf
+   demselben Etikett. Ursache liegt am Drucker, nicht an der Software. Diagnose und
+   Vorgehen: [`DRUCKER.md`, Abschnitt 7](DRUCKER.md#7-etikettensensor-lücke-wird-nicht-erkannt).
+   Offen: Sensorart festlegen (See Through oder Reflect), Sensor ausrichten,
+   Kalibrierung erfolgreich abschließen, danach mehrere Einzelaufträge testen.
 1. **Barcode scannen** mit dem Kassenscanner des Supermarkts und mit einer Handy-App.
    Der wichtigste offene Test.
 2. **Haltbarkeit pro Produkt:** In der CSV stehen überall 12 Monate als Platzhalter.
