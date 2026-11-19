@@ -105,7 +105,12 @@ class UsbTransport:
         try:
             # Ohne Puffer, damit ein Fehler sofort hier auftritt und nicht beim Schließen
             with open(pfad, "wb", buffering=0) as f:
-                f.write(daten)
+                rest = memoryview(daten)
+                while rest:
+                    geschrieben = f.write(rest)
+                    if not geschrieben:
+                        raise OSError(f"Drucker nimmt keine Daten an ({len(rest)} Bytes übrig)")
+                    rest = rest[geschrieben:]
         except PermissionError as e:
             raise DruckFehler(
                 f"Keine Schreibrechte auf {pfad}. Einmalig: sudo usermod -aG lp $USER, "

@@ -52,6 +52,26 @@ class UsbTest(unittest.TestCase):
         t = drucker.UsbTransport("/gibt/es/nicht/lp9")
         self.assertFalse(t.pruefen().ok)
 
+    def test_teilweises_schreiben_wird_fortgesetzt(self):
+        """Nimmt das Gerät nur einen Teil an, wird der Rest nachgeschickt, nichts geht verloren."""
+        import builtins
+        from unittest import mock
+
+        empfangen = bytearray()
+
+        class Geraet:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def write(self, daten):
+                stueck = bytes(daten[:7])
+                empfangen.extend(stueck)
+                return len(stueck)
+
+        daten = b"^XA^MNY^PW456^LL256^FDGuatemala^FS^XZ\n" * 3
+        with mock.patch.object(builtins, "open", return_value=Geraet()):
+            drucker.UsbTransport("/dev/usb/lp9").senden(daten)
+        self.assertEqual(bytes(empfangen), daten)
+
     def test_druckersprache_aus_kennung(self):
         zebra = "MANUFACTURER:CITIZEN;COMMAND SET:Z2;MODEL:CL-S521Z;ACTIVE COMMAND:Z2;"
         datamax = "MANUFACTURER:CITIZEN;COMMAND SET:DMI,DM4,DPP;MODEL:CL-S521;ACTIVE COMMAND:DMI;"

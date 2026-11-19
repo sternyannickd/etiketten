@@ -45,6 +45,17 @@ tcp_port = 9100
 # Falls der Testdruck statt Umlauten Unsinn zeigt: den anderen probieren.
 zeichensatz = "utf8"
 
+# Wie der Drucker den Anfang jedes Etiketts findet. Wird bei jedem Druck
+# mitgeschickt; der Citizen übernimmt das dauerhaft (AutoConfigure), ein
+# versehentlich umgestellter Sensor wird so beim nächsten Druck korrigiert.
+#   "luecke"     – Durchlichtsensor erkennt die Lücke zwischen den Etiketten (^MNY).
+#                  Richtig für die Rolle N11354 (57 × 32 mm, 10 mm Lücke). Der Sensor
+#                  muss dafür MITTIG unter dem Etikett sitzen, nicht auf der Spur der
+#                  schwarzen Striche am Rand.
+#   "markierung" – Reflexsensor erkennt eine schwarze Marke pro Etikett (^MNM).
+#   "drucker"    – nichts mitschicken, die Einstellung am Drucker gilt.
+sensor = "luecke"
+
 # Optional, leer lassen = Einstellung am Drucker gilt.
 # schwaerzung: -30 … 30 (^MD), geschwindigkeit: 2 … 6 Zoll/s (^PR)
 # schwaerzung = 0

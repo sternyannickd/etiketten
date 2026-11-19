@@ -50,6 +50,10 @@ LOKALE_VORLAGE = """\
 #
 # Falls Umlaute falsch gedruckt werden:
 # zeichensatz = "latin1"
+#
+# Wie der Drucker den Etikettenanfang findet (siehe docs/DRUCKER.md, Abschnitt 7):
+# "luecke" (Standard), "markierung" oder "drucker" (Einstellung am Drucker)
+# sensor = "luecke"
 
 # [etikett]
 # Kalibrierung in mm (positiv = nach rechts/unten):
@@ -76,6 +80,7 @@ STANDARD: dict = {
         "tcp_host": "",
         "tcp_port": 9100,
         "zeichensatz": "utf8",
+        "sensor": "luecke",
     },
     "vorschau": {
         "aktiv": True,

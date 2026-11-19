@@ -97,6 +97,26 @@ def feldtext(text: str) -> str:
     return "".join(f"_{ord(z):02X}" if z in "_^~" else z for z in text)
 
 
+SENSOR_BEFEHLE = {"luecke": "^MNY", "markierung": "^MNM", "drucker": None}
+
+
+def sensor_befehl(konfig: Konfig) -> str | None:
+    """^MN-Befehl für die Etikettenerkennung, None = Einstellung am Drucker lassen."""
+    art = str(konfig["drucker"].get("sensor", "luecke")).strip().lower()
+    if art not in SENSOR_BEFEHLE:
+        raise ValueError(f"Unbekannter sensor {art!r} (erlaubt: {', '.join(SENSOR_BEFEHLE)})")
+    return SENSOR_BEFEHLE[art]
+
+
+def _kopf(konfig: Konfig, lay: "Layout") -> list[str]:
+    """Gemeinsamer Anfang jedes Etiketts: Zeichensatz, Medium, Größe, Nullpunkt."""
+    z = ["^XA", "^CI28" if konfig["drucker"].get("zeichensatz", "utf8") == "utf8" else "^CI27"]
+    if (mn := sensor_befehl(konfig)):
+        z.append(mn)
+    z += [f"^PW{lay.breite}", f"^LL{lay.hoehe}", "^LH0,0"]
+    return z
+
+
 class Layout:
     """Rechnet Millimeter aus der Konfiguration in Druckpunkte um."""
 
@@ -129,11 +149,7 @@ def erzeugen(konfig: Konfig, daten: EtikettDaten) -> str:
     barcode = konfig["layout"]["barcode"]
     mhd = konfig["layout"]["mhd"]
 
-    z: list[str] = ["^XA"]
-    z.append("^CI28" if drucker.get("zeichensatz", "utf8") == "utf8" else "^CI27")
-    z.append(f"^PW{lay.breite}")
-    z.append(f"^LL{lay.hoehe}")
-    z.append("^LH0,0")
+    z = _kopf(konfig, lay)
     if drucker.get("schwaerzung") is not None:
         z.append(f"^MD{int(drucker['schwaerzung'])}")
     if drucker.get("geschwindigkeit") is not None:
@@ -197,11 +213,7 @@ def testetikett(konfig: Konfig) -> str:
     lay = Layout(konfig)
     rand = lay.punkte(2)
     zs = konfig["drucker"].get("zeichensatz", "utf8")
-    z = [
-        "^XA",
-        "^CI28" if zs == "utf8" else "^CI27",
-        f"^PW{lay.breite}", f"^LL{lay.hoehe}", "^LH0,0",
-    ]
+    z = _kopf(konfig, lay)
     x0, y0 = lay.pos(0, 0)
     # Rahmen 2 mm vom Rand: sitzt er ungleichmäßig, versatz_x / versatz_y anpassen
     z.append(f"^FO{x0 + rand},{y0 + rand}^GB{lay.breite - 2 * rand},{lay.hoehe - 2 * rand},2^FS")

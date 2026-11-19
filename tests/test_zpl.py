@@ -71,6 +71,34 @@ class ErzeugenTest(unittest.TestCase):
         self.assertIn("Äthiopien".encode("cp1252"), zpl.kodieren(k, text))
 
 
+class SensorTest(unittest.TestCase):
+    """Etikettenerkennung wird mit jedem Etikett geschickt (Citizen: AutoConfigure)."""
+
+    def kopf(self, sensor=None):
+        k = test_konfig()
+        if sensor is not None:
+            k.daten["drucker"]["sensor"] = sensor
+        return etikett(k).split("^FO")[0], zpl.testetikett(k).split("^FO")[0]
+
+    def test_standard_luecke(self):
+        for text in self.kopf():
+            self.assertIn("^MNY", text)
+            self.assertLess(text.index("^MNY"), text.index("^LL"))
+
+    def test_markierung(self):
+        for text in self.kopf("markierung"):
+            self.assertIn("^MNM", text)
+            self.assertNotIn("^MNY", text)
+
+    def test_drucker_schickt_nichts(self):
+        for text in self.kopf("drucker"):
+            self.assertNotIn("^MN", text)
+
+    def test_unbekannt(self):
+        with self.assertRaises(ValueError):
+            self.kopf("lichtschranke")
+
+
 class TitelTest(unittest.TestCase):
     def test_kurzer_name_groesste_schrift(self):
         schrift, zeilen = zpl.titel_setzen("Kolumbien", 320, 72, 2, 40, 24)
