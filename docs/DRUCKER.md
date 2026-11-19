@@ -167,5 +167,37 @@ In beiden Fällen müssen die weißen Markierungen von oberem und unterem Sensor
 Falls die automatische Einstellung nie gelingt, nennt das Handbuch (S. 46) als letzten
 Weg, den `Sensor Level` im Menü „System Setup“ von Hand zu setzen.
 
-**Stand 12.11.2026: noch nicht gelöst.** Zuletzt stand der Drucker auf `Reflect`
-(Schwelle 1,5 V, Messwert 2,95 V). Die Kalibrierung lief nicht fehlerfrei.
+### Lösung (19.11.2026)
+
+Die Rolle **N11354** (57 × 32 mm, **10 mm Lücke**, Trägerpapier 60 mm) hat auf der
+Rückseite **4 schwarze Striche pro Etikett** etwa 9 mm vom Rand und ein Loch pro
+Etikett am Rand. Die Striche sind **keine** Etikettenmarke. Mit „Reflect“ sieht der
+Drucker 4 Etikettenanfänge pro Etikett. Mit „See Through“ auf der Strichspur
+(Sensor stand 11 mm vom Rand) verwischt der Unterschied.
+
+Richtig ist:
+
+1. **See Through**, Sensor **mittig unter dem Etikett** (Pfeilspitze ca. 28–30 mm
+   vom Rand, oben und unten übereinander).
+2. **Sensor Level (Schwelle) zwischen den Messwerten.** Gemessen bei mittigem Sensor:
+   **Etikett 0,69 V, Lücke 2,17 V**. Eingestellt war 0,7 V, also genau auf dem
+   Etikett-Wert. Die Tastenkalibrierung hat die Schwelle nie geändert, `^SS` und `~JC`
+   ignoriert der CL-S521. Gelöst durch **Zurücksetzen auf Werkseinstellung**, die
+   Schwelle ist dann **1,5 V**. Danach liefert FEED zuverlässig genau ein Etikett, und
+   6 Einzelaufträge plus ein 3er-Auftrag kamen sauber und deckungsgleich heraus.
+
+**Werkseinstellung beim CL-S521 (ohne Display):** Drucker aus, **MODE/REPEAT
+halten und einschalten**. Der Drucker druckt „Reset this printer? YES = PAUSE,
+NO = STOP“, also **PAUSE** drücken, bei der Rückfrage noch einmal **PAUSE**. Danach aus
+und wieder ein. Das Menü druckt jede Frage auf ein Etikett. **STOP** heißt dort
+„Nein/weiter“, **MODE/REPEAT** verlässt das Menü. Druckersprache (Z2), Sensorart
+und Etikettenlänge bleiben bzw. werden vom Programm mit jedem Druck gesetzt.
+
+**Messen ohne Papierverbrauch:** Druckkopf öffnen, Etikett bzw. Lücke über den
+Sensor legen, schließen und `Sensor Monitor` per `^HH` auslesen (siehe oben).
+Die Schwelle muss deutlich zwischen beiden Werten liegen.
+
+**Vorsicht bei eigenen Tests:** Wegen `AutoConfigure: On` speichert der Drucker
+`^MN…` und `^LL…` aus jedem Auftrag dauerhaft. Ein Test mit `^MNN` (Endlospapier)
+stellt den Drucker also auf „None“ um. Das Programm setzt beim nächsten Druck
+wieder `^MNY`.

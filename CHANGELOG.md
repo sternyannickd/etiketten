@@ -1,7 +1,16 @@
 # Änderungen
 
-## Unveröffentlicht
+## 0.3.1 – 2026-11-19
 
+Etiketten landeten teils übereinander oder versetzt. Die Ursache lag am Drucker
+(Sensorschwelle), die Software stellt die Etikettenerkennung jetzt aber selbst ein.
+
+- **Etikettenerkennung wird mit jedem Druck mitgeschickt** (`^MNY` = Lücke,
+  Durchlicht). Der Citizen übernimmt das dauerhaft (AutoConfigure). Wurde der
+  Sensor am Drucker versehentlich auf „Reflect“ umgestellt, korrigiert der nächste
+  Druck das. Neue Einstellung `[drucker] sensor = "luecke" | "markierung" | "drucker"`.
+- **USB-Druck schickt immer alle Daten**: Nimmt der Drucker nur einen Teil an, wird
+  der Rest nachgeschickt, statt dass er verloren geht.
 - **Doppelklick auf „Drucken“ druckte den Auftrag zweimal.** Die Sperre des Knopfs
   endete, sobald der Drucker den Auftrag angenommen hatte, also nach Bruchteilen
   einer Sekunde. Der Knopf bleibt jetzt nach jedem Druck 2 Sekunden gesperrt.

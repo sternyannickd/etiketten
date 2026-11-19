@@ -1,6 +1,6 @@
 [project]
 name = "etiketten"
-version = "0.3.0"
+version = "0.3.1"
 description = "Etikettendruck (Titel, EAN-13, MHD) für Citizen-Etikettendrucker über ZPL"
 readme = "README.md"
 requires-python = ">=3.11"
